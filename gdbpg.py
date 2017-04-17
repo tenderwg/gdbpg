@@ -18,13 +18,10 @@ def format_plan_tree(tree, indent=0):
     if (str(tree) == '0x0'):
         return '-> (NULL)'
 
-    if is_a(tree, 'Append'):
-        append = cast(tree, 'Append')
-        retval = '''
+    retval = '''
 -> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s)
 \ttarget list:
-%(target)s
-\t%(appendplans)s''' % {
+%(target)s''' % {
         'type': format_type(tree['type']),    # type of the Node
         'startup': float(tree['startup_cost']),    # startup cost
         'total': float(tree['total_cost']),    # total cost
@@ -32,28 +29,21 @@ def format_plan_tree(tree, indent=0):
         'width': str(tree['plan_width']),    # tuple width (no header)
 
         # format target list
-        'target': format_node_list(tree['targetlist'], 2, True),
+        'target': format_node_list(tree['targetlist'], 2, True)
+        }
 
+    if is_a(tree, 'Append'):
+        append = cast(tree, 'Append')
+        retval += '''
+\t%(appendplans)s''' % {
         # format Append subplans
         'appendplans': format_appendplan_list(append['appendplans'], 0)
-
         }
     else:
     # format all the important fields (similarly to EXPLAIN)
-        retval = '''
--> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s)
-\ttarget list:
-%(target)s
+        retval +='''
 \t%(left)s
 \t%(right)s''' % {
-        'type': format_type(tree['type']),    # type of the Node
-        'startup': float(tree['startup_cost']),    # startup cost
-        'total': float(tree['total_cost']),    # total cost
-        'rows': str(tree['plan_rows']),    # number of rows
-        'width': str(tree['plan_width']),    # tuple width (no header)
-
-        # format target list
-        'target': format_node_list(tree['targetlist'], 2, True),
 
         # left subtree
         'left': format_plan_tree(tree['lefttree'], 0),
