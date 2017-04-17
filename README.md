@@ -1,9 +1,13 @@
-PostgreSQL GDB commands
+GPDB 4.x GDB commands
 =======================
 
-GDB commands making debugging PostgreSQL internals easier. Currently
+GDB commands making debugging Greenplum internals easier. Currently
 this provides a single command 'pgprint' that understand the 'Node'
 structures used internally, can can print them semi-intelligently.
+
+Forked from PostgreSQL debugging tool found here:
+
+https://github.com/tvondra/gdbpg
 
 
 Usage
