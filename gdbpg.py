@@ -1,5 +1,15 @@
 import gdb
 
+PlanNodes = ['Result', 'Repeat', 'Append', 'Sequence', 'Motion', 'AOCSScan',
+                'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
+                'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
+                'BitmapHeapScan', 'BitmapAppendOnlyScan', 'BitmapTableScan',
+                'DynamicTableScan', 'TidScan', 'SubqueryScan', 'FunctionScan',
+                'TableFunctionScan', 'ValuesScan', 'ExternalScan', 'AppendOnlyScan',
+                'Join', 'NestLoop', 'MergeJoin', 'HashJoin', 'ShareInputScan',
+                'Material', 'Sort', 'Agg', 'Window', 'Unique', 'Hash', 'SetOp',
+                'Limit', 'DML', 'SplitUpdate', 'AssertOp', 'RowTrigger',
+                'PartitionSelector' ]
 
 def format_plan_tree(tree, indent=0):
     'formats a plan (sub)tree, with custom indentation'
@@ -8,8 +18,29 @@ def format_plan_tree(tree, indent=0):
     if (str(tree) == '0x0'):
         return '-> (NULL)'
 
+    if is_a(tree, 'Append'):
+        append = cast(tree, 'Append')
+        retval = '''
+-> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s)
+\ttarget list:
+%(target)s
+\t%(appendplans)s''' % {
+        'type': format_type(tree['type']),    # type of the Node
+        'startup': float(tree['startup_cost']),    # startup cost
+        'total': float(tree['total_cost']),    # total cost
+        'rows': str(tree['plan_rows']),    # number of rows
+        'width': str(tree['plan_width']),    # tuple width (no header)
+
+        # format target list
+        'target': format_node_list(tree['targetlist'], 2, True),
+
+        # format Append subplans
+        'appendplans': format_appendplan_list(append['appendplans'], 0)
+
+        }
+    else:
     # format all the important fields (similarly to EXPLAIN)
-    retval = '''
+        retval = '''
 -> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s)
 \ttarget list:
 %(target)s
@@ -21,18 +52,21 @@ def format_plan_tree(tree, indent=0):
         'rows': str(tree['plan_rows']),    # number of rows
         'width': str(tree['plan_width']),    # tuple width (no header)
 
-    # format target list
+        # format target list
         'target': format_node_list(tree['targetlist'], 2, True),
 
-    # left subtree
+        # left subtree
         'left': format_plan_tree(tree['lefttree'], 0),
 
-    # right subtree
+        # right subtree
         'right': format_plan_tree(tree['righttree'], 0)
-    }
+        }
 
     return add_indent(retval, indent + 1)
 
+def format_appendplan_list(lst, indent):
+    retval = format_node_list(lst, indent, True)
+    return add_indent(retval, indent + 1)
 
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
@@ -257,12 +291,22 @@ def format_node(node, indent=0):
 
         retval = format_bool_expr(node)
 
+    elif is_plannode(node):
+        node = cast(node, 'Plan')
+        retval = format_plan_tree(node)
+
     else:
         # default - just print the type name
         retval = format_type(type_str)
 
     return add_indent(str(retval), indent)
 
+def is_plannode(node):
+    for nodestring in PlanNodes:
+        if is_a(node, nodestring):
+            return True
+
+    return False
 
 def format_planner_info(info, indent=0):
 
