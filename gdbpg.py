@@ -206,10 +206,10 @@ def format_node(node, indent=0):
 
 		node = cast(node, 'RangeTblEntry')
 
-		retval = 'RangeTblEntry (kind=%(rtekind)s relid=%(relid)s relkind=%(relkind)s)' % {
+		retval = 'RangeTblEntry (kind=%(rtekind)s relid=%(relid)s)' % {
 				'relid' : node['relid'],
-				'rtekind' : node['rtekind'],
-				'relkind' : format_char(node['relkind'])
+				'rtekind' : node['rtekind']
+				#'relkind' : format_char(node['relkind'])
 			}
 
 	elif is_a(node, 'PlannerInfo'):
@@ -252,7 +252,7 @@ def format_node(node, indent=0):
 
 		node = cast(node, 'BoolExpr')
 
-		print node
+		print(node)
 
 		retval = format_bool_expr(node)
 
@@ -284,13 +284,8 @@ rte:
 def format_planned_stmt(plan, indent=0):
 
 	retval = '''          type: %(type)s
-      query ID: %(qid)s
-    param exec: %(nparam)s
-     returning: %(has_returning)s
- modifying CTE: %(has_modify_cte)s
    can set tag: %(can_set_tag)s
      transient: %(transient)s
-  row security: %(row_security)s
                
      plan tree: %(tree)s
    range table:
@@ -300,13 +295,13 @@ def format_planned_stmt(plan, indent=0):
   utility stmt: %(util_stmt)s
       subplans: %(subplans)s''' % {
 			'type' : plan['commandType'],
-			'qid' : plan['queryId'],
-			'nparam' : plan['nParamExec'],
-			'has_returning' : (int(plan['hasReturning']) == 1),
-			'has_modify_cte' : (int(plan['hasModifyingCTE']) == 1),
+			#'qid' : plan['queryId'],
+			#'nparam' : plan['nParamExec'],
+			#'has_returning' : (int(plan['hasReturning']) == 1),
+			#'has_modify_cte' : (int(plan['hasModifyingCTE']) == 1),
 			'can_set_tag' : (int(plan['canSetTag']) == 1),
 			'transient' : (int(plan['transientPlan']) == 1),
-			'row_security' : (int(plan['hasRowSecurity']) == 1),
+			#'row_security' : (int(plan['hasRowSecurity']) == 1),
 			'tree' : format_plan_tree(plan['planTree']),
 			'rtable' : format_node_list(plan['rtable'], 1, True),
 			'relation_oids' : format_oid_list(plan['relationOids']),
@@ -372,15 +367,15 @@ class PgPrintCommand(gdb.Command):
 
 		arg_list = gdb.string_to_argv(arg)
 		if len(arg_list) != 1:
-			print "usage: pgprint var"
+			print("usage: pgprint var")
 			return
 
 		l = gdb.parse_and_eval(arg_list[0])
 
 		if not is_node(l):
-			print "not a node type"
+			print("not a node type")
 
-		print format_node(l)
+		print(format_node(l))
 
 
 PgPrintCommand()
