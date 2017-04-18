@@ -325,6 +325,7 @@ rte:
 def format_planned_stmt(plan, indent=0):
 
     retval = '''          type: %(type)s
+       planGen: %(planGen)s
    can set tag: %(can_set_tag)s
      transient: %(transient)s
                
@@ -336,6 +337,7 @@ def format_planned_stmt(plan, indent=0):
   utility stmt: %(util_stmt)s
       subplans: %(subplans)s''' % {
         'type': plan['commandType'],
+        'planGen': plan['planGen'],
     #'qid' : plan['queryId'],
     #'nparam' : plan['nParamExec'],
     #'has_returning' : (int(plan['hasReturning']) == 1),
