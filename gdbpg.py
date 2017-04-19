@@ -39,6 +39,12 @@ def format_plan_tree(tree, indent=0):
         # format Append subplans
         'appendplans': format_appendplan_list(append['appendplans'], 0)
         }
+    elif is_a(tree, 'SubqueryScan'):
+        subquery = cast(tree, 'SubqueryScan')
+        retval += '''
+\t%(subplan)s''' % {
+        'subplan': format_plan_tree(subquery['subplan'], 0)
+        }
     else:
     # format all the important fields (similarly to EXPLAIN)
         retval +='''
