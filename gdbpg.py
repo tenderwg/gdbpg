@@ -32,6 +32,13 @@ def format_plan_tree(tree, indent=0):
         'target': format_node_list(tree['targetlist'], 2, True)
         }
 
+    if (str(tree['qual']) != '0x0'):
+        retval +='''
+\tqual:
+%(qual)s''' % {
+            'qual': format_node_list(tree['qual'], 2, True)
+        }
+
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
         retval += '''
