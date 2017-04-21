@@ -67,6 +67,29 @@ def format_plan_tree(tree, indent=0):
 
     return add_indent(retval, indent + 1)
 
+def format_query_info(node, indent=0):
+    'formats a query node with custom indentation'
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = '''          type: %(type)s
+  command type: %(commandType)s
+  query source: %(querySource)s
+   can set tag: %(canSetTag)s
+   range table:
+%(rtable)s
+      jointree: %(jointree)s
+''' % {
+        'type': format_type(node['type']),
+        'commandType': format_type(node['commandType']),
+        'querySource': format_type(node['querySource']),
+        'canSetTag': (int(node['canSetTag']) == 1),
+        'rtable': format_node_list(node['rtable'], 1, True),
+        'jointree': format_node(node['jointree']),
+      }
+
+    return retval
+
 def format_appendplan_list(lst, indent):
     retval = format_node_list(lst, indent, True)
     return add_indent(retval, indent + 1)
@@ -293,6 +316,10 @@ def format_node(node, indent=0):
         print(node)
 
         retval = format_bool_expr(node)
+
+    elif is_a(node, 'Query'):
+
+        retval = format_query_info(node)
 
     elif is_plannode(node):
         node = cast(node, 'Plan')
