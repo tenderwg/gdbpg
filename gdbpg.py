@@ -1,13 +1,13 @@
 import gdb
 
 PlanNodes = ['Result', 'Repeat', 'Append', 'Sequence', 'Motion', 'AOCSScan',
-                'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
-                'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
-                'BitmapHeapScan', 'BitmapAppendOnlyScan', 'BitmapTableScan',
-                'DynamicTableScan', 'TidScan', 'SubqueryScan', 'FunctionScan',
-                'TableFunctionScan', 'ValuesScan', 'ExternalScan', 'AppendOnlyScan',
-                'Join', 'NestLoop', 'MergeJoin', 'HashJoin', 'ShareInputScan',
-                'Material', 'Sort', 'Agg', 'Window', 'Unique', 'Hash', 'SetOp',
+        'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
+        'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
+        'BitmapHeapScan', 'BitmapAppendOnlyScan', 'BitmapTableScan',
+        'DynamicTableScan', 'TidScan', 'SubqueryScan', 'FunctionScan',
+        'TableFunctionScan', 'ValuesScan', 'ExternalScan', 'AppendOnlyScan',
+        'Join', 'NestLoop', 'MergeJoin', 'HashJoin', 'ShareInputScan',
+        'Material', 'Sort', 'Agg', 'Window', 'Unique', 'Hash', 'SetOp',
                 'Limit', 'DML', 'SplitUpdate', 'AssertOp', 'RowTrigger',
                 'PartitionSelector' ]
 
@@ -242,6 +242,31 @@ def format_node(node, indent=0):
             'attno': node['varattno'],
             'levelsup': node['varlevelsup']
         }
+
+    elif is_a(node, 'Aggref'):
+        node = cast(node, 'Aggref')
+
+        retval = '''Aggref (aggfnoid=%(fnoid)s aggtype=%(aggtype)s aggstage=%(stage)s)
+\tAggref Args:
+%(args)s''' % {
+            'fnoid': node['aggfnoid'],
+            'aggtype': node['aggtype'],
+            'stage': node['aggstage'],
+            'args': format_node_list(node['args'], 2, True)
+        }
+
+    elif is_a(node, 'CaseExpr'):
+        node = cast(node, 'CaseExpr')
+
+        retval = '''CaseExpr (casetype=%(casetype)s defresult=%(defresult)s arg=%(arg)s)
+\tCaseExpr Args:
+%(args)s''' % {
+            'casetype': node['casetype'],
+            'defresult': node['defresult'],
+            'arg': format_node(node['arg']),
+            'args': format_node_list(node['args'], 2, True)
+        }
+
 
     elif is_a(node, 'RangeTblRef'):
 
