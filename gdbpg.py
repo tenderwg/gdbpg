@@ -19,7 +19,7 @@ def format_plan_tree(tree, indent=0):
         return '-> (NULL)'
 
     retval = '''
--> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s)
+-> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s) id=%(plan_node_id)s
 \ttarget list:
 %(target)s''' % {
         'type': format_type(tree['type']),    # type of the Node
@@ -27,6 +27,7 @@ def format_plan_tree(tree, indent=0):
         'total': float(tree['total_cost']),    # total cost
         'rows': str(tree['plan_rows']),    # number of rows
         'width': str(tree['plan_width']),    # tuple width (no header)
+        'plan_node_id': str(tree['plan_node_id']),
 
         # format target list
         'target': format_node_list(tree['targetlist'], 2, True)
@@ -262,9 +263,17 @@ def format_node(node, indent=0):
 \tCaseExpr Args:
 %(args)s''' % {
             'casetype': node['casetype'],
-            'defresult': node['defresult'],
+            'defresult': format_node(node['defresult']),
             'arg': format_node(node['arg']),
             'args': format_node_list(node['args'], 2, True)
+        }
+
+    elif is_a(node, 'CaseWhen'):
+        node = cast(node, 'CaseWhen')
+
+        retval = '''CaseWhen (expr=%(expr)s result=%(result)s)''' % {
+                'expr': format_node(node['expr']),
+                'result': format_node(node['result'])
         }
 
 
@@ -297,6 +306,11 @@ def format_node(node, indent=0):
             'rtekind': node['rtekind']
     #'relkind' : format_char(node['relkind'])
         }
+
+    elif is_a(node, 'GenericExprState'):
+
+        node = cast(node, 'GenericExprState')
+        retval = format_generic_expr_state(node)
 
     elif is_a(node, 'PlannerInfo'):
 
@@ -420,12 +434,27 @@ def format_planned_stmt(plan, indent=0):
 
     return add_indent(retval, indent)
 
+def format_generic_expr_state(node, indent=0):
+    exprstate = node['xprstate']
+    child = cast(node['arg'], 'ExprState')
+    return '''GenericExprState [evalFunc=%(evalFunc)s childEvalFunc= %(childEvalFunc)s]
+\t%(expr)s''' % {
+#\tChild Expr:
+#%(childexpr)s''' % {
+            'expr': format_node(exprstate['expr']),
+            'evalFunc': format_node(exprstate['evalfunc']),
+            'childexpr': format_node(child['expr']),
+            'childEvalFunc': child['evalfunc']
+    }
+
 
 def format_op_expr(node, indent=0):
 
-    return """OpExpr [opno=%(opno)s]
+    return """OpExpr [opno=%(opno)s opfuncid=%(opfuncid)s opresulttype=%(opresulttype)s]
 %(clauses)s""" % {
         'opno': node['opno'],
+        'opfuncid': node['opfuncid'],
+        'opresulttype': node['opresulttype'],
         'clauses': format_node_list(node['args'], 1, True)
     }
 
