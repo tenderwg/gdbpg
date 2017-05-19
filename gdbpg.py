@@ -40,6 +40,14 @@ def format_plan_tree(tree, indent=0):
             'qual': format_node_list(tree['qual'], 2, True)
         }
 
+    if is_a(tree, 'HashJoin') or is_a(tree, 'Join'):
+        join = cast(tree, 'Join')
+        retval+='''
+\t joinqual:
+%(joinqual)s''' % {
+            'joinqual': format_node_list(join['joinqual'], 2, True)
+        }
+
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
         retval += '''
