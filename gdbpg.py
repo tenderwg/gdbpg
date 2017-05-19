@@ -40,13 +40,14 @@ def format_plan_tree(tree, indent=0):
             'qual': format_node_list(tree['qual'], 2, True)
         }
 
-    if is_a(tree, 'HashJoin') or is_a(tree, 'Join'):
+    if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
         join = cast(tree, 'Join')
-        retval+='''
-\t joinqual:
+        if str(join['joinqual'] != '0x0'):
+            retval+='''
+\tjoinqual:
 %(joinqual)s''' % {
-            'joinqual': format_node_list(join['joinqual'], 2, True)
-        }
+                'joinqual': format_node_list(join['joinqual'], 2, True)
+            }
 
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
@@ -360,9 +361,21 @@ def format_node(node, indent=0):
 
         node = cast(node, 'BoolExpr')
 
-        print(node)
+        #print(node)
 
         retval = format_bool_expr(node)
+
+    elif is_a(node, 'SubPlan'):
+
+        node = cast(node, 'SubPlan')
+
+        retval = '''SubPlan (subLinkType=%(subLinkType)s plan_id=%(plan_id)s plan_name=%(plan_name)s)
+%(args)s''' % {
+            'subLinkType': node['subLinkType'],
+            'plan_id': node['plan_id'],
+            'plan_name': node['plan_name'],
+            'args': format_node_list(node['args'], 1, True)
+        }
 
     elif is_a(node, 'Query'):
 
