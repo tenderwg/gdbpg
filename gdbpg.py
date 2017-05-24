@@ -33,6 +33,13 @@ def format_plan_tree(tree, indent=0):
         'target': format_node_list(tree['targetlist'], 2, True)
         }
 
+    if (str(tree['initPlan']) != '0x0'):
+        retval +='''
+\tinitPlan:
+%(initPlan)s''' % {
+            'initPlan': format_node_list(tree['initPlan'], 2, True)
+        }
+
     if (str(tree['qual']) != '0x0'):
         retval +='''
 \tqual:
