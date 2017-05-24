@@ -40,9 +40,25 @@ def format_plan_tree(tree, indent=0):
             'qual': format_node_list(tree['qual'], 2, True)
         }
 
+    if is_a(tree, 'Result'):
+        result = cast(tree, 'Result')
+        if str(result['resconstantqual']) != '0x0':
+            # Resconstant qual might be a list
+            if is_a(result['resconstantqual'], 'List'):
+                resconstantqual = cast(result['resconstantqual'], 'List')
+            else:
+                resconstantqual = result['resconstantqual']
+
+            retval+='''
+\tresconstantqual:
+%(resconstantqual)s''' % {
+                'resconstantqual': format_node(resconstantqual, 2)
+            }
+
+
     if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
         join = cast(tree, 'Join')
-        if str(join['joinqual'] != '0x0'):
+        if str(join['joinqual']) != '0x0':
             retval+='''
 \tjoinqual:
 %(joinqual)s''' % {
@@ -357,6 +373,12 @@ def format_node(node, indent=0):
 
         retval = format_op_expr(node)
 
+    elif is_a(node, 'ScalarArrayOpExpr'):
+
+        node = cast(node, 'ScalarArrayOpExpr')
+
+        retval = format_scalar_array_op_expr(node)
+
     elif is_a(node, 'BoolExpr'):
 
         node = cast(node, 'BoolExpr')
@@ -476,6 +498,15 @@ def format_op_expr(node, indent=0):
         'opno': node['opno'],
         'opfuncid': node['opfuncid'],
         'opresulttype': node['opresulttype'],
+        'clauses': format_node_list(node['args'], 1, True)
+    }
+
+def format_scalar_array_op_expr(node, indent=0):
+    return """ScalarArrayOpExpr [opno=%(opno)s opfuncid=%(opfuncid)s useOr=%(useOr)s]
+%(clauses)s""" % {
+        'opno': node['opno'],
+        'opfuncid': node['opfuncid'],
+        'useOr': (int(node['useOr']) == 1),
         'clauses': format_node_list(node['args'], 1, True)
     }
 
