@@ -111,7 +111,8 @@ def format_query_info(node, indent=0):
    can set tag: %(canSetTag)s
    range table:
 %(rtable)s
-      jointree: %(jointree)s
+      jointree:
+%(jointree)s
 ''' % {
         'type': format_type(node['type']),
         'commandType': format_type(node['commandType']),
@@ -394,6 +395,12 @@ def format_node(node, indent=0):
 
         retval = format_bool_expr(node)
 
+    elif is_a(node, 'FromExpr'):
+
+        node = cast(node, 'FromExpr')
+
+        retval = format_from_expr(node)
+
     elif is_a(node, 'SubPlan'):
 
         node = cast(node, 'SubPlan')
@@ -526,6 +533,16 @@ def format_bool_expr(node, indent=0):
         'clauses': format_node_list(node['args'], 1, True)
     }
 
+def format_from_expr(node):
+    retval = """FromExpr
+%(fromlist)s""" % { 'fromlist': format_node_list(node['fromlist'], 1, True) }
+    if (str(node['quals']) != '0x0'):
+        retval +='''
+quals:
+%(quals)s''' % {
+            'quals': format_node(node['quals'],1)
+        }
+    return retval
 
 def is_a(n, t):
     '''checks that the node has type 't' (just like IsA() macro)'''
