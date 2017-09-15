@@ -277,6 +277,11 @@ def format_node(node, indent=0):
             'levelsup': node['varlevelsup']
         }
 
+    elif is_a(node, 'Const'):
+        node = cast(node, 'Const')
+
+        retval = format_const(node)
+
     elif is_a(node, 'Aggref'):
         node = cast(node, 'Aggref')
 
@@ -542,6 +547,29 @@ quals:
 %(quals)s''' % {
             'quals': format_node(node['quals'],1)
         }
+    return retval
+
+def format_const(node):
+    retval = "Const (consttype=%s" % node['consttype']
+    if (str(node['consttypmod']) != '0x0'):
+        retval += " consttypmod=%s" % node['consttypmod']
+
+    retval += " constlen=%s constvalue=" % node['constlen']
+
+    # Print the value if the type is int4 (23)
+    if(int(node['consttype']) == 23):
+        retval += "%s" % node['constvalue']
+    # Print the value if type is oid
+    elif(int(node['consttype']) == 26):
+        retval += "%s" % node['constvalue']
+    else:
+        retval += "%s" % hex(int(node['constvalue']))
+
+    retval += " constisnull=%(constisnull)s constbyval=%(constbyval)s" % {
+            'constisnull': (int(node['constisnull']) == 1),
+            'constbyval': (int(node['constbyval']) == 1) }
+
+    retval += ')'
     return retval
 
 def is_a(n, t):
