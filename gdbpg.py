@@ -113,6 +113,10 @@ def format_query_info(node, indent=0):
 %(rtable)s
       jointree:
 %(jointree)s
+    targetList:
+%(targetList)s
+ returningList:
+%(returningList)s
 ''' % {
         'type': format_type(node['type']),
         'commandType': format_type(node['commandType']),
@@ -120,6 +124,8 @@ def format_query_info(node, indent=0):
         'canSetTag': (int(node['canSetTag']) == 1),
         'rtable': format_node_list(node['rtable'], 1, True),
         'jointree': format_node(node['jointree']),
+        'targetList': format_node(node['targetList']),
+        'returningList': format_node(node['returningList']),
       }
 
     return retval
