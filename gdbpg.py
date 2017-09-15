@@ -277,8 +277,15 @@ def format_node(node, indent=0):
         # we assume the list contains Node instances (probably safe for Plan fields)
         node = cast(node, 'Var')
 
+        if node['varno'] == 65000:
+            varno = "INNER"
+        elif node['varno'] == 65001:
+            varno = "OUTER"
+        else:
+            varno = node['varno']
+
         retval = 'Var (varno=%(no)s varattno=%(attno)s levelsup=%(levelsup)s)' % {
-            'no': node['varno'],
+            'no': varno,
             'attno': node['varattno'],
             'levelsup': node['varlevelsup']
         }
