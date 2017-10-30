@@ -431,6 +431,26 @@ def format_node(node, indent=0):
             'args': format_node_list(node['args'], 1, True)
         }
 
+    elif is_a(node, 'PartitionRule'):
+
+        node = cast(node, 'PartitionRule')
+
+        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s)
+%(parrangestart)s [parrangestartincl=%(parrangestartincl)s]
+%(parrangeend)s [parrangeendincl=%(parrangeendincl)s]''' % {
+            'parruleid': node['parruleid'],
+            'paroid': node['paroid'],
+            'parchildrelid': node['parchildrelid'],
+            'parparentoid': node['parparentoid'],
+            'parisdefault': (int(node['parisdefault']) == 1),
+            'parname': node['parname'],
+            'parrangestart': format_node_list(cast(node['parrangestart'], 'List'), 1, True),
+            'parrangestartincl': (int(node['parrangestartincl']) == 1),
+            'parrangeend': format_node_list(cast(node['parrangeend'], 'List'), 1, True),
+            'parrangeendincl': (int(node['parrangeendincl']) == 1)
+
+        }
+
     elif is_a(node, 'Query'):
 
         retval = format_query_info(node)
