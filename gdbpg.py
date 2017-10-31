@@ -435,21 +435,32 @@ def format_node(node, indent=0):
 
         node = cast(node, 'PartitionRule')
 
-        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s)
-%(parrangestart)s [parrangestartincl=%(parrangestartincl)s]
-%(parrangeend)s [parrangeendincl=%(parrangeendincl)s]''' % {
+        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s)''' % {
             'parruleid': node['parruleid'],
             'paroid': node['paroid'],
             'parchildrelid': node['parchildrelid'],
             'parparentoid': node['parparentoid'],
             'parisdefault': (int(node['parisdefault']) == 1),
             'parname': node['parname'],
-            'parrangestart': format_node_list(cast(node['parrangestart'], 'List'), 1, True),
-            'parrangestartincl': (int(node['parrangestartincl']) == 1),
-            'parrangeend': format_node_list(cast(node['parrangeend'], 'List'), 1, True),
-            'parrangeendincl': (int(node['parrangeendincl']) == 1)
 
         }
+        if (str(node['parrangestart']) != '0x0'):
+            retval += '\n\t[parrangestart parrangestartincl=%(parrangestartincl)s] %(parrangestart)s' % {
+                'parrangestart': format_node_list(cast(node['parrangestart'], 'List'), 1, True),
+                'parrangestartincl': (int(node['parrangestartincl']) == 1),
+            }
+
+        if (str(node['parrangeend']) != '0x0'):
+            retval += '\n\t[parrangeend parrangeendincl=%(parrangeendincl)s] %(parrangeend)s' % {
+                'parrangeend': format_node_list(cast(node['parrangeend'], 'List'), 0, True),
+                'parrangeendincl': (int(node['parrangeendincl']) == 1),
+            }
+
+        if (str(node['parrangeevery']) != '0x0'):
+            retval += '\n\t[parrangeevery] %(parrangeevery)s' % {
+                'parrangeevery': format_node_list(cast(node['parrangeevery'], 'List'), 0, True),
+            }
+        
 
     elif is_a(node, 'Query'):
 
