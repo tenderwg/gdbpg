@@ -134,6 +134,163 @@ def format_appendplan_list(lst, indent):
     retval = format_node_list(lst, indent, True)
     return add_indent(retval, indent + 1)
 
+def format_alter_table_cmd(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    if (str(node['name']) == '0x0'):
+        name = '(NIL)'
+    else:
+        name = node['name']
+
+    retval = '''AlterTableCmd (subtype=%(subtype)s name=%(name)s behavior=%(behavior)s part_expanded=%(part_expanded)s)''' % {
+        'subtype': node['subtype'],
+        'name': name,
+        'behavior': node['behavior'],
+        'part_expanded': (int(node['part_expanded']) == 1)
+    }
+
+    if (str(node['def']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[definition] %s' % format_node(node['def']), 1)
+
+    #if (str(node['transform']) != '0x0'):
+    #    retval += '\n'
+    #    retval += add_indent('- [transform] %s' % format_node(node['transform']), 1)
+
+    #if (str(node['partoids']) != '0x0'):
+    #    retval += '\n'
+    #    retval += add_indent('- [partoids] %s' % format_oid_list(node['partoids']), 1)
+
+    return add_indent(retval, indent)
+
+def format_alter_partition_cmd(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'AlterPartitionCmd (location=%(location)s)' % {
+        'location': node['location']
+    }
+
+    if (str(node['partid']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partid] %s' % format_node(node['partid']), 1)
+
+    if (str(node['arg1']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[arg1] %s' % format_node(node['arg1']), 1)
+
+    return add_indent(retval, indent)
+
+def format_alter_partition_id(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'AlterPartitionId (idtype=%(idtype)s location=%(location)s)' % {
+        'idtype': node['idtype'],
+        'location': node['location']
+    }
+
+    if (str(node['partiddef']) != '0x0'):
+        if is_a(node['partiddef'], 'List'):
+            partdef = '\n[partiddef]\n'
+            partdef += add_indent('%s' % format_node_list(cast(node['partiddef'], 'List'), 0, True),1)
+            retval += add_indent(partdef, 1)
+        elif is_a(node['partiddef'], 'String'):
+            retval += '\n'
+            retval += add_indent('String: %s' % node['partiddef'], 1)
+
+    return add_indent(retval, indent)
+
+def format_pg_part_rule(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'PgPartRule (partIdStr=%(partIdStr)s isName=%(isName)s topRuleRank=%(topRuleRank)s relname=%(relname)s)' % {
+        'partIdStr': node['partIdStr'],
+        'isName': (int(node['isName']) == 1),
+        'topRuleRank': node['topRuleRank'],
+        'relname': node['relname']
+    }
+
+    if (str(node['pNode']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[pNode] %s' % format_node(node['pNode']), 1)
+
+    return add_indent(retval, indent)
+
+def format_partition_node(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'PartitionNode'
+
+
+    if (str(node['part']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[part] %s' % format_node(node['part']), 1)
+
+    if (str(node['default_part']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[default_part] %s' % format_node(node['default_part']), 1)
+
+    if (str(node['rules']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[rules] %s' % format_node_list(node['rules'], 0, True), 1)
+
+    return add_indent(retval, indent)
+
+def format_partition_elem(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'PartitionElem (partName=%(partName)s isDefault=%(isDefault)s AddPartDesc=%(AddPartDesc)s partno=%(partno)s rrand=%(rrand)s location=%(location)s' % {
+        'partName': node['partName'],
+        'isDefault': (int(node['isDefault']) == 1),
+        'AddPartDesc': node['AddPartDesc'],
+        'partno': node['partno'],
+        'rrand': node['rrand'],
+        'location': node['location']
+    }
+
+    if (str(node['boundSpec']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[boundSpec] %s' % format_node(node['boundSpec']), 1)
+
+    if (str(node['subSpec']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[subSpec] %s' % format_node(node['subSpec']), 1)
+
+    if (str(node['storeAttr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[storeAttr] %s' % format_node(node['storeAttr']), 1)
+
+    if (str(node['colencs']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[colencs] %s' % format_node_list(node['colencs'], 0, True), 1)
+
+
+    return add_indent(retval, indent)
+
+
+def format_partition(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'Partition (partid=%(partid)s parrelid=%(parrelid)s parkind=%(parkind)s parlevel=%(parlevel)s paristemplate=%(paristemplate)s parnatts=%(parnatts)s paratts=%(paratts)s parclass=%(parclass)s)' % {
+        'partid': node['partid'],
+        'parrelid': node['parrelid'],
+        'parkind': node['parkind'],
+        'parlevel': node['parlevel'],
+        'paristemplate': (int(node['paristemplate']) == 1),
+        'parnatts': node['parnatts'],
+        'paratts': node['paratts'],
+        'parclass': node['parclass']
+    }
+
+    return add_indent(retval, indent)
+
+
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
 
@@ -373,6 +530,8 @@ def format_node(node, indent=0):
 
     elif is_a(node, 'List'):
 
+        node = cast(node, 'List')
+
         retval = format_node_list(node, 0, True)
 
     elif is_a(node, 'Plan'):
@@ -419,6 +578,49 @@ def format_node(node, indent=0):
 
         retval = format_from_expr(node)
 
+
+    elif is_a(node, 'AlterTableCmd'):
+
+        node = cast(node, 'AlterTableCmd')
+
+        retval = format_alter_table_cmd(node)
+
+    elif is_a(node, 'AlterPartitionCmd'):
+
+        node = cast(node, 'AlterPartitionCmd')
+
+        retval = format_alter_partition_cmd(node)
+
+    elif is_a(node, 'AlterPartitionId'):
+
+        node = cast(node, 'AlterPartitionId')
+
+        retval = format_alter_partition_id(node)
+
+    elif is_a(node, 'PgPartRule'):
+
+        node = cast(node, 'PgPartRule')
+
+        retval = format_pg_part_rule(node)
+
+    elif is_a(node, 'PartitionNode'):
+
+        node = cast(node, 'PartitionNode')
+
+        retval = format_partition_node(node)
+
+    elif is_a(node, 'PartitionElem'):
+
+        node = cast(node, 'PartitionElem')
+
+        retval = format_partition_elem(node)
+
+    elif is_a(node, 'Partition'):
+
+        node = cast(node, 'Partition')
+
+        retval = format_partition(node)
+
     elif is_a(node, 'SubPlan'):
 
         node = cast(node, 'SubPlan')
@@ -460,15 +662,22 @@ def format_node(node, indent=0):
             retval += '\n\t[parrangeevery] %(parrangeevery)s' % {
                 'parrangeevery': format_node_list(cast(node['parrangeevery'], 'List'), 0, True),
             }
-        
+
+        if (str(node['parlistvalues']) != '0x0'):
+            retval += '\n\t[parlistvalues] %(parlistvalues)s' % {
+                'parlistvalues': format_node_list(node['parlistvalues']),
+            }
+
 
     elif is_a(node, 'Query'):
 
         retval = format_query_info(node)
 
+
     elif is_plannode(node):
         node = cast(node, 'Plan')
         retval = format_plan_tree(node)
+
 
     else:
         # default - just print the type name
