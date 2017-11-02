@@ -201,8 +201,9 @@ def format_alter_partition_id(node, indent=0):
             partdef += add_indent('%s' % format_node_list(cast(node['partiddef'], 'List'), 0, True),1)
             retval += add_indent(partdef, 1)
         elif is_a(node['partiddef'], 'String'):
-            retval += '\n'
-            retval += add_indent('String: %s' % node['partiddef'], 1)
+            partdef = '\n[partiddef]'
+            partdef += add_indent('String: %s' % node['partiddef'], 1)
+            retval += add_indent(partdef, 1)
 
     return add_indent(retval, indent)
 
