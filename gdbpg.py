@@ -180,6 +180,10 @@ def format_alter_partition_cmd(node, indent=0):
         retval += '\n'
         retval += add_indent('[arg1] %s' % format_node(node['arg1']), 1)
 
+    if (str(node['arg2']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[arg2] %s' % format_node(node['arg2']), 1)
+
     return add_indent(retval, indent)
 
 def format_alter_partition_id(node, indent=0):
@@ -217,6 +221,10 @@ def format_pg_part_rule(node, indent=0):
         retval += '\n'
         retval += add_indent('[pNode] %s' % format_node(node['pNode']), 1)
 
+    if (str(node['topRule']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[topRule] %s' % format_node(node['topRule']), 1)
+
     return add_indent(retval, indent)
 
 def format_partition_node(node, indent=0):
@@ -244,7 +252,7 @@ def format_partition_elem(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'PartitionElem (partName=%(partName)s isDefault=%(isDefault)s AddPartDesc=%(AddPartDesc)s partno=%(partno)s rrand=%(rrand)s location=%(location)s' % {
+    retval = 'PartitionElem (partName=%(partName)s isDefault=%(isDefault)s AddPartDesc=%(AddPartDesc)s partno=%(partno)s rrand=%(rrand)s location=%(location)s)' % {
         'partName': node['partName'],
         'isDefault': (int(node['isDefault']) == 1),
         'AddPartDesc': node['AddPartDesc'],
@@ -272,6 +280,49 @@ def format_partition_elem(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_partition_bound_spec(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'PartitionBoundSpec (pWithTnameStr=%(pWithTnameStr)s location=%(location)s)' % {
+        'pWithTnameStr': node['pWithTnameStr'],
+        'location': node['location'],
+    }
+    if (str(node['partStart']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partStart] %s' % format_node(node['partStart']), 1)
+
+    if (str(node['partEnd']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partEnd] %s' % format_node(node['partEnd']), 1)
+
+    if (str(node['partEvery']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partEvery] %s' % format_node(node['partEvery']), 1)
+
+    if (str(node['everyGenList']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[everyGenList] %s' % format_node_list(node['everyGenList'], 0, True), 1)
+
+
+    return add_indent(retval, indent)
+
+def format_partition_range_item(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'PartitionRangeItem (partedge=%(partedge)s everycount=%(everycount)s location=%(location)s)' % {
+        'partedge': node['partedge'],
+        'everycount': node['everycount'],
+        'location': node['location'],
+    }
+
+    if (str(node['partRangeVal']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partRangeVal] %s' % format_node_list(node['partRangeVal'], 0, True), 1)
+
+
+    return add_indent(retval, indent)
 
 def format_partition(node, indent=0):
     if (str(node) == '0x0'):
@@ -287,6 +338,21 @@ def format_partition(node, indent=0):
         'paratts': node['paratts'],
         'parclass': node['parclass']
     }
+
+    return add_indent(retval, indent)
+
+def format_def_elem(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'DefElem (defname=%(defname)s defaction=%(defaction)s)' % {
+        'defname': node['defname'],
+        'defaction': node['defaction'],
+    }
+
+    if (str(node['arg']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[arg] %s' % format_node(node['arg']), 1)
 
     return add_indent(retval, indent)
 
@@ -615,11 +681,33 @@ def format_node(node, indent=0):
 
         retval = format_partition_elem(node)
 
+    elif is_a(node, 'PartitionBoundSpec'):
+
+        node = cast(node, 'PartitionBoundSpec')
+
+        retval = format_partition_bound_spec(node)
+
+    elif is_a(node, 'PartitionRangeItem'):
+
+        node = cast(node, 'PartitionRangeItem')
+
+        retval = format_partition_range_item(node)
+
     elif is_a(node, 'Partition'):
 
         node = cast(node, 'Partition')
 
         retval = format_partition(node)
+
+    elif is_a(node, 'DefElem'):
+
+        node = cast(node, 'DefElem')
+
+        retval = format_def_elem(node)
+
+    elif is_a(node, 'String'):
+
+        retval = 'String: %s' % node
 
     elif is_a(node, 'SubPlan'):
 
@@ -637,14 +725,15 @@ def format_node(node, indent=0):
 
         node = cast(node, 'PartitionRule')
 
-        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s)''' % {
+        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s parruleord=%(parruleord)s partemplatespaceId=%(partemplatespaceId)s)''' % {
             'parruleid': node['parruleid'],
             'paroid': node['paroid'],
             'parchildrelid': node['parchildrelid'],
             'parparentoid': node['parparentoid'],
             'parisdefault': (int(node['parisdefault']) == 1),
             'parname': node['parname'],
-
+            'parruleord': node['parruleord'],
+            'partemplatespaceId': node['partemplatespaceId'],
         }
         if (str(node['parrangestart']) != '0x0'):
             retval += '\n\t[parrangestart parrangestartincl=%(parrangestartincl)s] %(parrangestart)s' % {
@@ -667,6 +756,19 @@ def format_node(node, indent=0):
             retval += '\n\t[parlistvalues] %(parlistvalues)s' % {
                 'parlistvalues': format_node_list(node['parlistvalues']),
             }
+
+        if (str(node['parreloptions']) != '0x0'):
+            retval += '\n\t[parreloptions] %(parreloptions)s' % {
+            'parlistvalues': format_node_list(node['parlistvalues']),
+        }
+
+        if (str(node['children']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[children] %s' % format_node(node['children']),1)
+
+    elif is_a(node, 'OidList'):
+
+        retval = 'OidList: %s' % format_oid_list(node)
 
 
     elif is_a(node, 'Query'):
