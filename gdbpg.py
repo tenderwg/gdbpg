@@ -342,6 +342,26 @@ def format_partition(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_type_cast(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'TypeCast (location=%(location)s)' % {
+        'location': node['location'],
+    }
+
+
+    if (str(node['typeName']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[typeName] %s' % format_node(node['typeName']), 1)
+
+    if (str(node['arg']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[arg] %s' % format_node(node['arg']), 1)
+
+    return add_indent(retval, indent)
+
+
 def format_def_elem(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
@@ -766,6 +786,12 @@ def format_node(node, indent=0):
         if (str(node['children']) != '0x0'):
             retval += '\n'
             retval += add_indent('[children] %s' % format_node(node['children']),1)
+
+    elif is_a(node, 'TypeCast'):
+
+        node = cast(node, 'TypeCast')
+
+        retval = format_type_cast(node)
 
     elif is_a(node, 'OidList'):
 
