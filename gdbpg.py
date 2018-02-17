@@ -378,6 +378,22 @@ def format_def_elem(node, indent=0):
     return add_indent(retval, indent)
 
 
+def format_param(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'Param (paramkind=%(paramkind)s paramid=%(paramid)s paramtype=%(paramtype)s paramtypmod=%(paramtypmod)s location=%(location)s)' % {
+        'paramkind': node['paramkind'],
+        'paramid': node['paramid'],
+        'paramtype': node['paramtype'],
+        'paramtypmod': node['paramtypmod'],
+        'location': node['location']
+    }
+
+    return add_indent(retval, indent)
+
+
+
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
 
@@ -725,6 +741,12 @@ def format_node(node, indent=0):
         node = cast(node, 'DefElem')
 
         retval = format_def_elem(node)
+
+    elif is_a(node, 'Param'):
+
+        node = cast(node, 'Param')
+
+        retval = format_param(node)
 
     elif is_a(node, 'String'):
 
