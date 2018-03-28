@@ -117,6 +117,10 @@ def format_query_info(node, indent=0):
 %(targetList)s
  returningList:
 %(returningList)s
+   groupClause:
+%(groupClause)s
+    sortClause:
+%(sortClause)s
 ''' % {
         'type': format_type(node['type']),
         'commandType': format_type(node['commandType']),
@@ -126,6 +130,8 @@ def format_query_info(node, indent=0):
         'jointree': format_node(node['jointree']),
         'targetList': format_node(node['targetList']),
         'returningList': format_node(node['returningList']),
+        'groupClause': format_node_list(node['groupClause'], 0, True),
+        'sortClause': format_node_list(node['sortClause'], 0, True),
       }
 
     return retval
@@ -523,13 +529,26 @@ def format_node(node, indent=0):
         if str(name_ptr) != '0x0':
             name = '"' + (name_ptr.string()) + '"'
 
-        retval = 'TargetEntry (resno=%(resno)s resname=%(name)s origtbl=%(tbl)s origcol=%(col)s junk=%(junk)s expr=[%(expr)s])' % {
+        retval = 'TargetEntry (resno=%(resno)s resname=%(name)s ressortgroupref=%(ressortgroupref)s origtbl=%(tbl)s origcol=%(col)s junk=%(junk)s expr=[%(expr)s])' % {
             'resno': node['resno'],
             'name': name,
+            'ressortgroupref': node['ressortgroupref'],
             'tbl': node['resorigtbl'],
             'col': node['resorigcol'],
             'junk': (int(node['resjunk']) == 1),
             'expr': format_node(node['expr'])
+        }
+
+    elif is_a(node, 'SortGroupClause'):
+
+        node = cast(node, 'SortGroupClause')
+
+        retval = 'SortGroupClause (tleSortGroupRef=%(tleSortGroupRef)s eqop=%(eqop)s sortop=%(sortop)s nulls_first=%(nulls_first)s hashable=%(hashable)s)' % {
+            'tleSortGroupRef': node['tleSortGroupRef'],
+            'eqop': node['eqop'],
+            'sortop': node['sortop'],
+            'nulls_first': (int(node['nulls_first']) == 1),
+            'hashable': (int(node['hashable']) == 1),
         }
 
     elif is_a(node, 'Var'):
@@ -544,9 +563,15 @@ def format_node(node, indent=0):
         else:
             varno = node['varno']
 
-        retval = 'Var (varno=%(no)s varattno=%(attno)s levelsup=%(levelsup)s)' % {
+        retval = 'Var (varno=%(no)s varattno=%(attno)s ' % {
             'no': varno,
             'attno': node['varattno'],
+
+        }
+        if node['varcollid'] != 0:
+            retval += 'varcollid=%s ' % node['varcollid']
+
+        retval += 'levelsup=%(levelsup)s)' % {
             'levelsup': node['varlevelsup']
         }
 
