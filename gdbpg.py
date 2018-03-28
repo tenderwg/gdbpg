@@ -686,6 +686,12 @@ def format_node(node, indent=0):
 
         retval = format_op_expr(node)
 
+    elif is_a(node, 'CoerceViaIO'):
+
+        node = cast(node, 'CoerceViaIO')
+
+        retval = format_coerce_via_io(node)
+
     elif is_a(node, 'ScalarArrayOpExpr'):
 
         node = cast(node, 'ScalarArrayOpExpr')
@@ -953,6 +959,24 @@ def format_op_expr(node, indent=0):
     retval += ']\n'
     retval += """%(clauses)s""" % {
         'clauses': format_node_list(node['args'], 1, True)
+    }
+
+    return add_indent(retval, indent)
+
+def format_coerce_via_io(node, indent=0):
+
+    retval = """CoerceViaIO [resulttype=%(resulttype)s coerceformat=%(coerceformat)s location=%(location)s""" % {
+        'resulttype': node['resulttype'],
+        'coerceformat': node['coerceformat'],
+        'location': node['location'],
+    }
+
+    if node['resultcollid'] != 0:
+        retval += ' resultcollid=%s' % node['resultcollid']
+
+    retval += ']\n'
+    retval += """%(arg)s""" % {
+        'arg': format_node(node['arg'], 1)
     }
 
     return add_indent(retval, indent)
