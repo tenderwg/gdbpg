@@ -941,13 +941,21 @@ def format_generic_expr_state(node, indent=0):
 
 def format_op_expr(node, indent=0):
 
-    return """OpExpr [opno=%(opno)s opfuncid=%(opfuncid)s opresulttype=%(opresulttype)s]
-%(clauses)s""" % {
+    retval = """OpExpr [opno=%(opno)s opfuncid=%(opfuncid)s opresulttype=%(opresulttype)s""" % {
         'opno': node['opno'],
         'opfuncid': node['opfuncid'],
         'opresulttype': node['opresulttype'],
+    }
+
+    if node['opcollid'] != 0:
+        retval += ' opcollid=%s' % node['opcollid']
+
+    retval += ']\n'
+    retval += """%(clauses)s""" % {
         'clauses': format_node_list(node['args'], 1, True)
     }
+
+    return add_indent(retval, indent)
 
 def format_scalar_array_op_expr(node, indent=0):
     return """ScalarArrayOpExpr [opno=%(opno)s opfuncid=%(opfuncid)s useOr=%(useOr)s]
