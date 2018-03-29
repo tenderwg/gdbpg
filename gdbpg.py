@@ -72,6 +72,26 @@ def format_plan_tree(tree, indent=0):
                 'joinqual': format_node_list(join['joinqual'], 2, True)
             }
 
+    if is_a(tree, 'Sort'):
+        append = cast(tree, 'Sort')
+        numcols = int(append['numCols'])
+
+        retval += '\n\tSort Indexes:\n'
+
+
+        index = ''
+        for col in range(0,numcols):
+            index += '[sortColIdx=%(sortColIdx)s collations=%(collations)s, nullsFirst=%(nullsFirst)s]' % {
+                'sortColIdx': append['sortColIdx'][col],
+                'collations': append['collations'][col],
+                'nullsFirst': append['nullsFirst'][col]
+            }
+            if col < numcols-1:
+                index += '\n'
+
+        retval += add_indent(index, 2)
+
+
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
         retval += '''
