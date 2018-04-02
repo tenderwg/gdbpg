@@ -92,6 +92,26 @@ def format_plan_tree(tree, indent=0):
         retval += add_indent(index, 2)
 
 
+    if is_a(tree, 'FunctionScan'):
+        functionscan = cast(tree, 'FunctionScan')
+        if str(functionscan['funcexpr']) != '0x0':
+            # Resconstant qual might be a list
+            retval+='\n\tfuncexpr:\n%(funcexpr)s' % {
+                'funcexpr': format_node(functionscan['funcexpr'], 2)
+            }
+
+        if str(functionscan['funccolnames']) != '0x0':
+            # Resconstant qual might be a list
+            retval+='\n\tfunccolnames: %(funccolnames)s' % {
+                'funccolnames': format_node_list(functionscan['funccolnames'])
+            }
+
+        if str(functionscan['funccolcollations']) != '0x0':
+            # Resconstant qual might be a list
+            retval+='\n\tfunccolcollations:\n%(funccolcolations)s' % {
+                'funccolcollations': format_node_list(functionscan['funccolcollations'])
+            }
+
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
         retval += '''
