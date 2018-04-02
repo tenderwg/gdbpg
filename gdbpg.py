@@ -975,6 +975,8 @@ def format_op_expr(node, indent=0):
 
     if node['opcollid'] != 0:
         retval += ' opcollid=%s' % node['opcollid']
+    if node['inputcollid'] != 0:
+        retval += ' inputcollid=%s' % node['inputcollid']
 
     retval += ']\n'
     retval += """%(clauses)s""" % {
@@ -1034,6 +1036,9 @@ def format_const(node):
     retval = "Const (consttype=%s" % node['consttype']
     if (str(node['consttypmod']) != '0x0'):
         retval += " consttypmod=%s" % node['consttypmod']
+
+    if node['constcollid']:
+        retval += " constcollid=%s" % node['constcollid']
 
     retval += " constlen=%s constvalue=" % node['constlen']
 
