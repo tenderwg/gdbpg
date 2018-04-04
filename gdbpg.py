@@ -159,6 +159,8 @@ def format_query_info(node, indent=0):
 %(returningList)s
    groupClause:
 %(groupClause)s
+    havingQual:
+%(havingQual)s
     sortClause:
 %(sortClause)s
 ''' % {
@@ -171,6 +173,7 @@ def format_query_info(node, indent=0):
         'targetList': format_node(node['targetList']),
         'returningList': format_node(node['returningList']),
         'groupClause': format_node_list(node['groupClause'], 0, True),
+        'havingQual': format_node(node['havingQual']),
         'sortClause': format_node_list(node['sortClause'], 0, True),
       }
 
