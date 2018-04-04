@@ -108,8 +108,8 @@ def format_plan_tree(tree, indent=0):
 
         if str(functionscan['funccolcollations']) != '0x0':
             # Resconstant qual might be a list
-            retval+='\n\tfunccolcollations:\n%(funccolcolations)s' % {
-                'funccolcollations': format_node_list(functionscan['funccolcollations'])
+            retval+='\n\tfunccolcollations:\n%(funccolcollations)s' % {
+                'funccolcollations': format_oid_list(functionscan['funccolcollations'])
             }
 
     if is_a(tree, 'Append'):
