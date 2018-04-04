@@ -143,7 +143,7 @@ def format_plan_tree(tree, indent=0):
 def format_query_info(node, indent=0):
     'formats a query node with custom indentation'
     if (str(node) == '0x0'):
-        return '(NIL)'
+        return add_indent('(NULL)', indent)
 
     retval = '''          type: %(type)s
   command type: %(commandType)s
@@ -174,7 +174,7 @@ def format_query_info(node, indent=0):
         'sortClause': format_node_list(node['sortClause'], 0, True),
       }
 
-    return retval
+    return add_indent(retval, 0)
 
 def format_appendplan_list(lst, indent):
     retval = format_node_list(lst, indent, True)
@@ -502,7 +502,7 @@ def format_node_list(lst, indent=0, newline=False):
 
     # handle NULL pointer (for List we return NIL)
     if (str(lst) == '0x0'):
-        return '(NIL)'
+        return add_indent('(NULL)', indent)
 
     # we'll collect the formatted items into a Python list
     tlist = []
