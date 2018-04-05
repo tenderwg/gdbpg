@@ -622,17 +622,29 @@ def format_node(node, indent=0):
         else:
             varno = node['varno']
 
-        retval = 'Var (varno=%(no)s varattno=%(attno)s ' % {
+        retval = 'Var (varno=%(no)s varattno=%(attno)s' % {
             'no': varno,
             'attno': node['varattno'],
 
         }
-        if node['varcollid'] != 0:
-            retval += 'varcollid=%s ' % node['varcollid']
 
-        retval += 'levelsup=%(levelsup)s)' % {
+        if node['varcollid'] != 0:
+            retval += ' varcollid=%s' % node['varcollid']
+
+        retval += ' levelsup=%(levelsup)s' % {
             'levelsup': node['varlevelsup']
         }
+
+        if node['varnoold'] != 0:
+            retval += ' varnoold=%s' % node['varnoold']
+
+        if node['varoattno'] != 0:
+            retval += ' varoattno=%s' % node['varoattno']
+
+        if node['location'] != -1:
+            retval += ' location=%s' % node['location']
+
+        retval += ')'
 
     elif is_a(node, 'Const'):
         node = cast(node, 'Const')
