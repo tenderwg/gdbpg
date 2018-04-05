@@ -707,14 +707,13 @@ def format_node(node, indent=0):
 
         node = cast(node, 'RelOptInfo')
 
-        retval = 'RelOptInfo (kind=%(kind)s relids=%(relids)s rtekind=%(rtekind)s relid=%(relid)s rows=%(rows)s width=%(width)s fk=%(fk)s)' % {
+        retval = 'RelOptInfo (kind=%(kind)s relids=%(relids)s rtekind=%(rtekind)s relid=%(relid)s rows=%(rows)s width=%(width)s)' % {
             'kind': node['reloptkind'],
             'rows': node['rows'],
             'width': node['width'],
             'relid': node['relid'],
             'relids': format_relids(node['relids']),
             'rtekind': node['rtekind'],
-            'fk': (int(node['has_fk_join']) == 1)
         }
 
     elif is_a(node, 'RangeTblEntry'):
