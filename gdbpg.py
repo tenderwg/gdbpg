@@ -175,6 +175,7 @@ def format_query_info(node, indent=0):
 %(havingQual)s
     sortClause:
 %(sortClause)s
+constraintDeps: %(constraintDeps)s
 ''' % {
         'type': format_type(node['type']),
         'commandType': format_type(node['commandType']),
@@ -187,6 +188,7 @@ def format_query_info(node, indent=0):
         'groupClause': format_node_list(node['groupClause'], 0, True),
         'havingQual': format_node(node['havingQual']),
         'sortClause': format_node_list(node['sortClause'], 0, True),
+        'constraintDeps': format_node(node['constraintDeps']),
       }
 
     return add_indent(retval, 0)
