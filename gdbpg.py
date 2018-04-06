@@ -958,9 +958,9 @@ def format_node(node, indent=0):
             }
 
         if (str(node['parreloptions']) != '0x0'):
-            retval += '\n\t[parreloptions] %(parreloptions)s' % {
-            'parlistvalues': format_node_list(node['parlistvalues']),
-        }
+                retval += '\n\t[parreloptions] %(parreloptions)s' % {
+                'parreloptions': format_node_list(node['parlistvalues']),
+            }
 
         if (str(node['children']) != '0x0'):
             retval += '\n'
