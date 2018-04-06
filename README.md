@@ -1,4 +1,4 @@
-GPDB 4.x GDB commands
+GPDB 6.x GDB commands
 =======================
 
 GDB commands making debugging Greenplum internals easier. Currently
