@@ -45,6 +45,18 @@ def format_plan_tree(tree, indent=0):
             'skewColTypmod': hash['skewColTypmod'],
         }
 
+    if is_a(tree, 'Sort'):
+        sort = cast(tree, 'Sort')
+        node_extra += '   <numCols=%(numCols)s noduplicates=%(noduplicates)s share_type=%(share_type)s share_id=%(share_id)s driver_slice=%(driver_slice)s nsharer=%(nsharer)s nsharer_xslice=%(nsharer_xslice)s>\n' % {
+            'numCols': sort['numCols'],
+            'noduplicates': (int(sort['noduplicates']) == 1),
+            'share_type': sort['share_type'],
+            'share_id': sort['share_id'],
+            'driver_slice': sort['driver_slice'],
+            'nsharer': sort['nsharer'],
+            'nsharer_xslice': sort['nsharer_xslice'],
+        }
+
     if is_a(tree, 'SetOp'):
         setop = cast(tree, 'SetOp')
         node_extra += '   <cmd=%(cmd)s strategy=%(strategy)s numCols=%(numCols)s flagColIdx=%(flagColIdx)s firstFlag=%(firstFlag)s numGroups=%(numGroups)s>\n' % {
@@ -139,9 +151,10 @@ def format_plan_tree(tree, indent=0):
 
         index = ''
         for col in range(0,numcols):
-            index += '[sortColIdx=%(sortColIdx)s collations=%(collations)s, nullsFirst=%(nullsFirst)s]' % {
+            index += '[sortColIdx=%(sortColIdx)s sortOperator=%(sortOperator)s collation=%(collation)s, nullsFirst=%(nullsFirst)s]' % {
                 'sortColIdx': append['sortColIdx'][col],
-                'collations': append['collations'][col],
+                'sortOperator': append['sortOperators'][col],
+                'collation': append['collations'][col],
                 'nullsFirst': append['nullsFirst'][col]
             }
             if col < numcols-1:
