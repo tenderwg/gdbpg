@@ -112,11 +112,12 @@ def format_plan_tree(tree, indent=0):
                 }
 
             if str(hashjoin['hashqualclauses']) != '0x0':
-                retval += '\n\thashqualclauses:' \
+                retval += '\n\thashqualclauses:'
 
                 retval += '\n%(hashqualclauses)s' % {
                     'hashqualclauses': format_node_list(hashjoin['hashqualclauses'], 2, True)
                 }
+
 
     if is_a(tree, 'Sort'):
         append = cast(tree, 'Sort')
