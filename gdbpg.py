@@ -505,7 +505,8 @@ def format_def_elem(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'DefElem (defname=%(defname)s defaction=%(defaction)s)' % {
+    retval = 'DefElem (defnamespace=%(defnamespace)s defname=%(defname)s defaction=%(defaction)s)' % {
+        'defnamespace': node['defnamespace'],
         'defname': node['defname'],
         'defaction': node['defaction'],
     }
