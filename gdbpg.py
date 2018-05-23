@@ -516,6 +516,32 @@ def format_def_elem(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_type_name(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'TypeName (typeOid=%(typeOid)s timezone=%(timezone)s setof=%(setof)s pct_type=%(pct_type)s typemod=%(typemod)s location=%(location)s)' % {
+        'typeOid': node['typeOid'],
+        'timezone': (int(node['timezone']) == 1),
+        'setof': (int(node['setof']) == 1),
+        'pct_type': (int(node['pct_type']) == 1),
+        'typemod': node['typemod'],
+        'location': node['location'],
+    }
+
+    if (str(node['names']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[names] %s' % format_node(node['names']), 1)
+
+    if (str(node['typmods']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[typmods] %s' % format_node(node['typmods']), 1)
+
+    if (str(node['arrayBounds']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[arrayBounds] %s' % format_node(node['arrayBounds']), 1)
+
+    return add_indent(retval, indent)
 
 def format_param(node, indent=0):
     if (str(node) == '0x0'):
@@ -957,6 +983,12 @@ def format_node(node, indent=0):
         node = cast(node, 'DefElem')
 
         retval = format_def_elem(node)
+
+    elif is_a(node, 'TypeName'):
+
+        node = cast(node, 'TypeName')
+
+        retval = format_type_name(node)
 
     elif is_a(node, 'Param'):
 
