@@ -936,6 +936,11 @@ def format_node(node, indent=0):
 
         retval = format_from_expr(node)
 
+    elif is_a(node, 'JoinExpr'):
+
+        node = cast(node, 'JoinExpr')
+
+        retval = format_join_expr(node)
 
     elif is_a(node, 'AlterTableCmd'):
 
@@ -1280,6 +1285,33 @@ def format_from_expr(node):
 quals:
 %(quals)s''' % {
             'quals': format_node(node['quals'],1)
+        }
+    return retval
+
+def format_join_expr(node):
+    retval = """JoinExpr (jointype=%(jointype)s isNatural=%(isNatural)s)""" % {
+        'jointype': node['jointype'],
+        'isNatural': (int(node['isNatural']) == 1),
+    }
+
+    if (str(node['larg']) != '0x0'):
+        retval += '''\n\tlarg:\n%(larg)s''' % {
+            'larg': format_node(node['larg'],2)
+        }
+
+    if (str(node['rarg']) != '0x0'):
+        retval += '''\n\trarg:\n%(rarg)s''' % {
+            'rarg': format_node(node['rarg'],2)
+        }
+
+    if(str(node['usingClause']) != '0x0'):
+        retval += """\n\tusingClause:\n%(usingClause)s""" % {
+            'usingClause': format_node_list(node['usingClause'], 2, True)
+        }
+
+    if (str(node['quals']) != '0x0'):
+        retval += '''\n\tquals:\n%(quals)s''' % {
+            'quals': format_node(node['quals'],2)
         }
     return retval
 
