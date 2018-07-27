@@ -1087,6 +1087,8 @@ def format_node(node, indent=0):
 
 
     elif is_a(node, 'Query'):
+ 
+        node = cast(node, 'Query')
 
         retval = format_query_info(node)
 
