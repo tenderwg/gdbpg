@@ -1281,12 +1281,13 @@ def format_bool_expr(node, indent=0):
 
 def format_from_expr(node):
     retval = """FromExpr
-%(fromlist)s""" % { 'fromlist': format_node_list(node['fromlist'], 1, True) }
+\tfromlist:
+%(fromlist)s""" % { 'fromlist': format_node_list(node['fromlist'], 2, True) }
     if (str(node['quals']) != '0x0'):
         retval +='''
-quals:
+\tquals:
 %(quals)s''' % {
-            'quals': format_node(node['quals'],1)
+            'quals': format_node(node['quals'],2)
         }
     return retval
 
