@@ -19,13 +19,22 @@ def format_plan_tree(tree, indent=0):
         return '-> (NULL)'
 
     node_extra = ''
-    if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan'):
+    if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan'):
         scan = cast(tree, 'Scan')
-        node_extra += '   <scanrelid=%(scanrelid)s partIndex=%(partIndex)s partIndexPrintable=%(partIndexPrintable)s>\n' % {
+        node_extra += '   <scanrelid=%(scanrelid)s partIndex=%(partIndex)s partIndexPrintable=%(partIndexPrintable)s' % {
             'scanrelid': scan['scanrelid'],
             'partIndex': scan['partIndex'],
             'partIndexPrintable': scan['partIndexPrintable'],
         }
+
+        if is_a(tree, 'IndexScan'):
+            indexscan = cast(tree, 'IndexScan')
+            node_extra += ' indexid=%(indexid)s indexorderdir=%(indexorderdir)s' % {
+                'indexid': indexscan['indexid'],
+                'indexorderdir': indexscan['indexorderdir']
+            }
+
+        node_extra += '>\n'
 
     if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
         join = cast(tree, 'Join')
@@ -85,6 +94,13 @@ def format_plan_tree(tree, indent=0):
         # format target list
         'target': format_node_list(tree['targetlist'], 2, True)
         }
+
+    if is_a(tree, 'IndexScan'):
+        indexscan = cast(tree, 'IndexScan')
+        if str(indexscan['indexqual']) != '0x0':
+            retval+='\n\tindexqual:\n%(indexqual)s' % {
+                'indexqual': format_node_list(indexscan['indexqual'], 2, True)
+            }
 
     if (str(tree['initPlan']) != '0x0'):
         retval +='''
