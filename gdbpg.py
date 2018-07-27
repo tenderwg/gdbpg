@@ -1,7 +1,7 @@
 import gdb
 
-PlanNodes = ['Result', 'Repeat', 'Append', 'Sequence', 'Motion', 'AOCSScan',
-        'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
+PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion', 
+        'AOCSScan', 'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
         'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
         'BitmapHeapScan', 'BitmapAppendOnlyScan', 'BitmapTableScan',
         'DynamicTableScan', 'TidScan', 'SubqueryScan', 'FunctionScan',
