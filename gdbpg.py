@@ -1194,11 +1194,16 @@ def format_planned_stmt(plan, indent=0):
     return add_indent(retval, indent)
 
 def format_rte(node, indent=0):
-    retval = 'RangeTblEntry (rtekind=%(rtekind)s relid=%(relid)s relkind=%(relkind)s)' % {
+    retval = 'RangeTblEntry (rtekind=%(rtekind)s relid=%(relid)s relkind=%(relkind)s' % {
         'relid': node['relid'],
         'rtekind': node['rtekind'],
         'relkind': format_char(node['relkind'])
     }
+
+    if int(node['inh']) != 0:
+        retval += ' inh=%(inh)s' % { 'inh': (int(node['inh']) == 1) }
+
+    retval += ")"
 
     return add_indent(retval, indent)
 
