@@ -21,10 +21,8 @@ def format_plan_tree(tree, indent=0):
     node_extra = ''
     if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan'):
         scan = cast(tree, 'Scan')
-        node_extra += '   <scanrelid=%(scanrelid)s partIndex=%(partIndex)s partIndexPrintable=%(partIndexPrintable)s' % {
+        node_extra += '   <scanrelid=%(scanrelid)s)s' % {
             'scanrelid': scan['scanrelid'],
-            'partIndex': scan['partIndex'],
-            'partIndexPrintable': scan['partIndexPrintable'],
         }
 
         if is_a(tree, 'IndexScan'):
@@ -79,12 +77,10 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'Motion'):
         motion= cast(tree, 'Motion')
-        node_extra += '   <motionType=%(motionType)s sendSorted=%(sendSorted)s motionID=%(motionID)s numOutputSegs=%(numOutputSegs)s outputSegIdx=%(outputSegIdx)s segidColIdx=%(segidColIdx)s nullsFirst=%(nullsFirst)s>\n' % {
+        node_extra += '   <motionType=%(motionType)s sendSorted=%(sendSorted)s motionID=%(motionID)s segidColIdx=%(segidColIdx)s nullsFirst=%(nullsFirst)s>\n' % {
             'motionType': motion['motionType'],
             'sendSorted': (int(motion['sendSorted']) == 1),
             'motionID': motion['motionID'],
-            'numOutputSegs': motion['numOutputSegs'],
-            'outputSegIdx': motion['outputSegIdx'],
             'segidColIdx': motion['segidColIdx'],
             'nullsFirst': motion['nullsFirst'],
         }
@@ -242,6 +238,13 @@ def format_plan_tree(tree, indent=0):
         retval += '''
 \t%(subplan)s''' % {
         'subplan': format_plan_tree(subquery['subplan'], 0)
+        }
+    elif is_a(tree, 'ModifyTable'):
+        modifytable= cast(tree, 'ModifyTable')
+        retval += '''
+\t%(plans)s''' % {
+        # format Append subplans
+        'plans': format_appendplan_list(modifytable['plans'], 0)
         }
     else:
     # format all the important fields (similarly to EXPLAIN)
