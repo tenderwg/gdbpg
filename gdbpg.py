@@ -893,6 +893,12 @@ def format_node(node, indent=0):
 
         retval = format_create_stmt(node)
 
+    elif is_a(node, 'AlterTableStmt'):
+
+        node = cast(node, 'AlterTableStmt')
+
+        retval = format_alter_table_stmt(node)
+
     elif is_a(node, 'RangeVar'):
 
         node = cast(node, 'RangeVar')
@@ -1266,6 +1272,20 @@ def format_create_stmt(node, indent=0):
         retval += '\n'
         retval += add_indent('[postCreate] %s' % format_node(node['postCreate']) ,1)
 
+    return add_indent(retval, indent)
+
+def format_alter_table_stmt(node, indent=0):
+    retval = 'AlterTableStmt [relkind=%(relkind)s missing_ok=%(missing_ok)s]' % {
+        'relkind': node['relkind'],
+        'missing_ok': (int(node['missing_ok']) == 1),
+    }
+
+    if (str(node['relation']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[relation] %s' % format_node(node['relation']) ,1)
+    if (str(node['cmds']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[cmds] %s' % format_node_list(node['cmds'], 0, True), 1)
 
     return add_indent(retval, indent)
 
