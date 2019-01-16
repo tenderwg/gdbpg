@@ -827,6 +827,12 @@ def format_node(node, indent=0):
             retval += '\n\taggfilter:'
             retval += '\n%s' % format_node(node['aggfilter'], 2)
 
+
+    elif is_a(node, 'A_Expr'):
+        node = cast(node, 'A_Expr')
+
+        retval = format_a_expr(node)
+
     elif is_a(node, 'CaseExpr'):
         node = cast(node, 'CaseExpr')
 
@@ -1617,6 +1623,23 @@ def format_scalar_array_op_expr(node, indent=0):
         'clauses': format_node_list(node['args'], 1, True)
     }
 
+def format_a_expr(node, indent=0):
+    retval = "A_Expr [kind=%(kind)s location=%(location)s]" % {
+        'kind': node['kind'],
+        'location': node['location'],
+        }
+
+    if (str(node['name']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[name] %s' % format_node_list(node['name']) ,1)
+    if (str(node['lexpr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[lexpr] %s' % format_node(node['lexpr']) ,1)
+    if (str(node['rexpr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[rexpr] %s' % format_node(node['rexpr']) ,1)
+
+    return add_indent(retval, indent)
 
 def format_bool_expr(node, indent=0):
 
