@@ -893,6 +893,12 @@ def format_node(node, indent=0):
 
         retval = format_create_stmt(node)
 
+    elif is_a(node, 'IndexStmt'):
+
+        node = cast(node, 'IndexStmt')
+
+        retval = format_index_stmt(node)
+
     elif is_a(node, 'AlterTableStmt'):
 
         node = cast(node, 'AlterTableStmt')
@@ -1271,6 +1277,44 @@ def format_create_stmt(node, indent=0):
     if (str(node['postCreate']) != '0x0'):
         retval += '\n'
         retval += add_indent('[postCreate] %s' % format_node(node['postCreate']) ,1)
+
+    return add_indent(retval, indent)
+
+def format_index_stmt(node, indent=0):
+    retval = 'IndexStmt [idxname=%(idxname)s relationOid=%(relationOid)s accessMethod=%(accessMethod)s tableSpace=%(tableSpace)s idxcomment=%(idxcomment)s indexOid=%(indexOid)s is_part_child=%(is_part_child)s oldNode=%(oldNode)s\n           unique=%(unique)s primary=%(primary)s isconstraint=%(isconstraint)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s concurrent=%(concurrent)s altconname=%(altconname)s is_split_part=%(is_split_part)s]' % {
+        'idxname': node['idxname'],
+        'relationOid': node['relationOid'],
+        'accessMethod': node['accessMethod'],
+        'tableSpace': node['tableSpace'],
+        'idxcomment': node['idxcomment'],
+        'indexOid': node['indexOid'],
+        'is_part_child': (int(node['is_part_child']) == 1),
+        'oldNode': node['oldNode'],
+        'unique': (int(node['unique']) == 1),
+        'primary': (int(node['primary']) == 1),
+        'isconstraint': (int(node['isconstraint']) == 1),
+        'deferrable': (int(node['deferrable']) == 1),
+        'initdeferred': (int(node['initdeferred']) == 1),
+        'concurrent': (int(node['concurrent']) == 1),
+        'altconname': node['altconname'],
+        'is_split_part': (int(node['is_split_part']) == 1),
+        }
+
+    if (str(node['relation']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[relation] %s' % format_node(node['relation']), 1)
+    if (str(node['indexParams']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[indexParams] %s' % format_node_list(node['indexParams'], 0, True), 1)
+    if (str(node['options']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[options] %s' % format_node_list(node['options']), 1)
+    if (str(node['whereClause']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[whereClause] %s' % format_node(node['whereClause']), 1)
+    if (str(node['excludeOpNames']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[excludeOpNames] %s' % format_node_list(node['excludeOpNames'], 0, True), 1)
 
     return add_indent(retval, indent)
 
