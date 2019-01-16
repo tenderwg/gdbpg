@@ -1155,6 +1155,9 @@ def format_node(node, indent=0):
 
         retval = 'OidList: %s' % format_oid_list(node)
 
+    elif is_a(node, 'IntList'):
+
+        retval = 'IntList: %s' % format_oid_list(node)
 
     elif is_a(node, 'Query'):
  
