@@ -1206,7 +1206,7 @@ def format_planned_stmt(plan, indent=0):
     return add_indent(retval, indent)
 
 def format_create_stmt(node, indent=0):
-    retval = 'CreateStmt [parentOidCount=%(parentOidCount)s oncommit=%(oncommit)s tablespacename=%(tablespacename)s if_not_exists=%(if_not_exists)s relKind=%(relKind)s\n            relStorage=%(relStorage)s is_part_child=%(is_part_child)s is_add_part=%(is_add_part)s is_split_part=%(is_split_part)s ownerid=%(ownerid)s buildAoBlkdir=%(buildAoBlkdir)s]' % {
+    retval = 'CreateStmt [parentOidCount=%(parentOidCount)s oncommit=%(oncommit)s tablespacename=%(tablespacename)s if_not_exists=%(if_not_exists)s relKind=%(relKind)s\n            relStorage=%(relStorage)s is_part_child=%(is_part_child)s is_add_part=%(is_add_part)s is_split_part=%(is_split_part)s ownerid=%(ownerid)s buildAoBlkdir=%(buildAoBlkdir)s]\n' % {
         'parentOidCount': node['parentOidCount'],
         'oncommit': node['oncommit'],
         'tablespacename': node['tablespacename'],
@@ -1220,6 +1220,34 @@ def format_create_stmt(node, indent=0):
         'ownerid': node['ownerid'],
         'buildAoBlkdir': (int(node['buildAoBlkdir']) == 1),
         }
+
+    retval += add_indent('[relation] %s' % format_node(node['relation'], 0), 1)
+
+    retval += '\n'
+    retval += add_indent('[tableElts] %s' % format_node_list(node['tableElts']), 1)
+
+    if (str(node['inhOids']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[inhOids] %s' % format_oid_list(node['inhOids']), 1)
+    if (str(node['ofTypename']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[ofTypename] %s' % format_node(node['ofTypename']), 1)
+    if (str(node['constraints']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[constraints] %s' % format_node_list(node['constraints']), 1)
+    if (str(node['options']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[options] %s' % format_node_list(node['options']), 1)
+    if (str(node['distributedBy']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[distributedBy] %s' % format_node(node['distributedBy']), 1)
+    if (str(node['partitionBy']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partitionBy] %s' % format_node(node['partitionBy']), 1)
+    if (str(node['postCreate']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[postCreate] %s' % format_node(node['postCreate']) ,1)
+
 
     return add_indent(retval, indent)
 
