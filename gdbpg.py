@@ -893,6 +893,12 @@ def format_node(node, indent=0):
 
         retval = format_create_stmt(node)
 
+    elif is_a(node, 'RangeVar'):
+
+        node = cast(node, 'RangeVar')
+
+        retval = format_range_var(node)
+
     elif is_a(node, 'List'):
 
         node = cast(node, 'List')
@@ -1214,6 +1220,25 @@ def format_create_stmt(node, indent=0):
         'ownerid': node['ownerid'],
         'buildAoBlkdir': (int(node['buildAoBlkdir']) == 1),
         }
+
+    return add_indent(retval, indent)
+
+def format_range_var(node, indent=0):
+    retval = 'RangeVar ['
+
+    if (str(node['catalogname']) != '0x0'):
+        retval += 'catalogname=%(catalogname)s ' % { 'catalogname': node['catalogname'] }
+
+    if (str(node['schemaname']) != '0x0'):
+        retval += 'schemaname=%(schemaname)s ' % { 'schemaname': node['schemaname'] }
+
+    retval += 'relname=%(relname)s inhOpt=%(inhOpt)s relpersistence=%(relpersistence)s alias=%(alias)s location=%(location)s]' % {
+        'relname': node['relname'],
+        'inhOpt': node['inhOpt'],
+        'relpersistence': node['relpersistence'],
+        'alias': node['alias'],
+        'location': node['location'],
+    }
 
     return add_indent(retval, indent)
 
