@@ -1033,6 +1033,12 @@ def format_node(node, indent=0):
 
         retval = format_partition(node)
 
+    elif is_a(node, 'PartitionBy'):
+
+        node = cast(node, 'PartitionBy')
+
+        retval = format_partition_by(node)
+
     elif is_a(node, 'DefElem'):
 
         node = cast(node, 'DefElem')
@@ -1267,6 +1273,36 @@ def format_range_var(node, indent=0):
         'alias': node['alias'],
         'location': node['location'],
     }
+
+    return add_indent(retval, indent)
+
+def format_partition_by(node, indent=0):
+    retval = 'PartitionBy [partType=%(partType)s partDepth=%(partDepth)s bKeepMe=%(bKeepMe)s partQuiet=%(partQuiet)s location=%(location)s]' % {
+        'partType': node['partType'],
+        'partDepth': node['partDepth'],
+        'bKeepMe': (int(node['bKeepMe']) == 1),
+        'partQuiet': node['partQuiet'],
+        'location': node['location'],
+    }
+
+    if (str(node['keys']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[keys] %s' % format_node_list(node['keys']), 1)
+    if (str(node['keyopclass']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[keyopclass] %s' % format_node(node['keyopclass']) ,1)
+    if (str(node['subPart']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[subPart] %s' % format_node(node['subPart']) ,1)
+    if (str(node['partSpec']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partSpec] %s' % format_node(node['partSpec']) ,1)
+    if (str(node['partDefault']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partDefault] %s' % format_node(node['partDefault']) ,1)
+    if (str(node['parentRel']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[parentRel] %s' % format_node(node['parentRel']) ,1)
 
     return add_indent(retval, indent)
 
