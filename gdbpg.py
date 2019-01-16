@@ -1,4 +1,5 @@
 import gdb
+import string
 
 PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion', 
         'AOCSScan', 'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
@@ -1083,7 +1084,9 @@ def format_node(node, indent=0):
 
     elif is_a(node, 'String'):
 
-        retval = 'String: %s' % node
+        node = cast(node, 'Value')
+
+        retval = 'String [%s]' % getchars(node['val']['str'])
 
     elif is_a(node, 'SubPlan'):
 
@@ -1282,9 +1285,9 @@ def format_create_stmt(node, indent=0):
 
 def format_index_stmt(node, indent=0):
     retval = 'IndexStmt [idxname=%(idxname)s relationOid=%(relationOid)s accessMethod=%(accessMethod)s tableSpace=%(tableSpace)s idxcomment=%(idxcomment)s indexOid=%(indexOid)s is_part_child=%(is_part_child)s oldNode=%(oldNode)s\n           unique=%(unique)s primary=%(primary)s isconstraint=%(isconstraint)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s concurrent=%(concurrent)s altconname=%(altconname)s is_split_part=%(is_split_part)s]' % {
-        'idxname': node['idxname'],
+        'idxname': getchars(node['idxname']),
         'relationOid': node['relationOid'],
-        'accessMethod': node['accessMethod'],
+        'accessMethod': getchars(node['accessMethod']),
         'tableSpace': node['tableSpace'],
         'idxcomment': node['idxcomment'],
         'indexOid': node['indexOid'],
@@ -1296,7 +1299,7 @@ def format_index_stmt(node, indent=0):
         'deferrable': (int(node['deferrable']) == 1),
         'initdeferred': (int(node['initdeferred']) == 1),
         'concurrent': (int(node['concurrent']) == 1),
-        'altconname': node['altconname'],
+        'altconname': getchars(node['altconname']),
         'is_split_part': (int(node['is_split_part']) == 1),
         }
 
@@ -1337,13 +1340,13 @@ def format_range_var(node, indent=0):
     retval = 'RangeVar ['
 
     if (str(node['catalogname']) != '0x0'):
-        retval += 'catalogname=%(catalogname)s ' % { 'catalogname': node['catalogname'] }
+        retval += 'catalogname=%(catalogname)s ' % { 'catalogname': getchars(node['catalogname']) }
 
     if (str(node['schemaname']) != '0x0'):
-        retval += 'schemaname=%(schemaname)s ' % { 'schemaname': node['schemaname'] }
+        retval += 'schemaname=%(schemaname)s ' % { 'schemaname': getchars(node['schemaname']) }
 
     retval += 'relname=%(relname)s inhOpt=%(inhOpt)s relpersistence=%(relpersistence)s alias=%(alias)s location=%(location)s]' % {
-        'relname': node['relname'],
+        'relname': getchars(node['relname']),
         'inhOpt': node['inhOpt'],
         'relpersistence': node['relpersistence'],
         'alias': node['alias'],
@@ -1403,7 +1406,7 @@ def format_partition_spec(node, indent=0):
 def format_constraint(node, indent=0):
     retval = 'Constraint [contype=%(contype)s conname=%(conname)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s location=%(location)s is_no_inherit=%(is_no_inherit)s' % {
         'contype': node['contype'],
-        'conname': node['conname'],
+        'conname': getchars(node['conname']),
         'deferrable': (int(node['deferrable']) == 1),
         'initdeferred': (int(node['initdeferred']) == 1),
         'location': node['location'],
@@ -1411,7 +1414,7 @@ def format_constraint(node, indent=0):
     }
 
     if (str(node['indexname']) != '0x0'):
-        retval += ' indexname=%s' % node['indexname']
+        retval += ' indexname=%s' % getchars(node['indexname'])
     if (str(node['indexspace']) != '0x0'):
         retval += ' indexspace=%s' % node['indexspace']
         retval += ' access_method=%s' % node['access_method']
@@ -1715,6 +1718,25 @@ def cast(node, type_name):
 def add_indent(val, indent):
 
     return "\n".join([(("\t" * indent) + l) for l in val.split("\n")])
+
+def getchars(arg):
+    if (str(arg) == '0x0'):
+        return str(arg)
+
+    retval = '"'
+
+    i=0
+    while arg[i] != ord("\0"):
+        character = int(arg[i].cast(gdb.lookup_type("char")))
+        if chr(character) in string.printable:
+            retval += "%c" % chr(character)
+        else:
+            retval += "\\x%x" % character
+        i += 1
+
+    retval += '"'
+
+    return retval
 
 
 class PgPrintCommand(gdb.Command):
