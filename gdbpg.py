@@ -887,6 +887,12 @@ def format_node(node, indent=0):
 
         retval = format_planned_stmt(node)
 
+    elif is_a(node, 'CreateStmt'):
+
+        node = cast(node, 'CreateStmt')
+
+        retval = format_create_stmt(node)
+
     elif is_a(node, 'List'):
 
         node = cast(node, 'List')
@@ -1190,6 +1196,24 @@ def format_planned_stmt(plan, indent=0):
         'util_stmt': format_node(plan['utilityStmt']),
         'subplans': format_node_list(plan['subplans'], 1, True)
     }
+
+    return add_indent(retval, indent)
+
+def format_create_stmt(node, indent=0):
+    retval = 'CreateStmt [parentOidCount=%(parentOidCount)s oncommit=%(oncommit)s tablespacename=%(tablespacename)s if_not_exists=%(if_not_exists)s relKind=%(relKind)s\n            relStorage=%(relStorage)s is_part_child=%(is_part_child)s is_add_part=%(is_add_part)s is_split_part=%(is_split_part)s ownerid=%(ownerid)s buildAoBlkdir=%(buildAoBlkdir)s]' % {
+        'parentOidCount': node['parentOidCount'],
+        'oncommit': node['oncommit'],
+        'tablespacename': node['tablespacename'],
+        'if_not_exists': (int(node['if_not_exists']) == 1),
+        'relKind': node['relKind'],
+        'relStorage': node['relStorage'],
+        'is_part_child': (int(node['is_part_child']) == 1),
+        'is_part_parent': (int(node['is_part_parent']) == 1),
+        'is_add_part': (int(node['is_add_part']) == 1),
+        'is_split_part': (int(node['is_split_part']) == 1),
+        'ownerid': node['ownerid'],
+        'buildAoBlkdir': (int(node['buildAoBlkdir']) == 1),
+        }
 
     return add_indent(retval, indent)
 
