@@ -1045,6 +1045,12 @@ def format_node(node, indent=0):
 
         retval = format_partition_spec(node)
 
+    elif is_a(node, 'Constraint'):
+
+        node = cast(node, 'Constraint')
+
+        retval = format_constraint(node)
+
     elif is_a(node, 'DefElem'):
 
         node = cast(node, 'DefElem')
@@ -1246,7 +1252,7 @@ def format_create_stmt(node, indent=0):
         retval += add_indent('[ofTypename] %s' % format_node(node['ofTypename']), 1)
     if (str(node['constraints']) != '0x0'):
         retval += '\n'
-        retval += add_indent('[constraints] %s' % format_node_list(node['constraints']), 1)
+        retval += add_indent('[constraints] %s' % format_node_list(node['constraints'], 0, True), 1)
     if (str(node['options']) != '0x0'):
         retval += '\n'
         retval += add_indent('[options] %s' % format_node_list(node['options']), 1)
@@ -1327,6 +1333,90 @@ def format_partition_spec(node, indent=0):
     if (str(node['subSpec']) != '0x0'):
         retval += '\n'
         retval += add_indent('[subSpec] %s' % format_node(node['subSpec']), 1)
+
+    return add_indent(retval, indent)
+
+def format_constraint(node, indent=0):
+    retval = 'Constraint [contype=%(contype)s conname=%(conname)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s location=%(location)s is_no_inherit=%(is_no_inherit)s' % {
+        'contype': node['contype'],
+        'conname': node['conname'],
+        'deferrable': (int(node['deferrable']) == 1),
+        'initdeferred': (int(node['initdeferred']) == 1),
+        'location': node['location'],
+        'is_no_inherit': (int(node['is_no_inherit']) == 1),
+    }
+
+    if (str(node['indexname']) != '0x0'):
+        retval += ' indexname=%s' % node['indexname']
+    if (str(node['indexspace']) != '0x0'):
+        retval += ' indexspace=%s' % node['indexspace']
+        retval += ' access_method=%s' % node['access_method']
+
+    foreign_key_matchtypes = {
+        'f': 'FKCONSTR_MATCH_FULL',
+        'p': 'FKCONSTR_MATCH_PARTIAL',
+        's': 'FKCONSTR_MATCH_SIMPLE',
+    }
+
+    if (foreign_key_matchtypes.get(node['fk_matchtype']) != None):
+        retval += ' fk_matchtype=%s' % foreign_key_matchtypes.get(node['fk_matchtype'])
+
+    foreign_key_actions = {
+        'a': 'FKONSTR_ACTION_NOACTION',
+        'r': 'FKCONSTR_ACTION_RESTRICT',
+        'c': 'FKCONSTR_ACTION_CASCADE',
+        'n': 'FKONSTR_ACTION_SETNULL',
+        'd': 'FKONSTR_ACTION_SETDEFAULT',
+    }
+
+    if (foreign_key_actions.get(node['fk_upd_action']) != None):
+        retval += ' fk_upd_action=%s' % foreign_key_actions.get(node['fk_upd_action'])
+
+    if (foreign_key_actions.get(node['fk_upd_action']) != None):
+        retval += ' fk_del_action=%s' % foreign_key_actions.get(node['fk_upd_action'])
+
+    if (node['old_pktable_oid'] != 0):
+        retval += ' old_pktable_oid=%s' % node['old_pktable_oid']
+
+    retval += ' skip_validation=%s' % (int(node['skip_validation']) == 1)
+    retval += ' initially_valid=%s' % (int(node['initially_valid']) == 1)
+
+    if (node['trig1Oid'] != 0):
+        retval += ' trig1Oid=%s' % node['trig1Oid']
+    if (node['trig2Oid'] != 0):
+        retval += ' trig2Oid=%s' % node['trig1Oid']
+    if (node['trig3Oid'] != 0):
+        retval += ' trig3Oid=%s' % node['trig1Oid']
+    if (node['trig4Oid'] != 0):
+        retval += ' trig4Oid=%s' % node['trig1Oid']
+
+    retval += ']'
+
+
+    if (str(node['raw_expr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[raw_expr] %s' % format_node(node['raw_expr']), 1)
+    if (str(node['cooked_expr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[cooked_expr] %s' % node['cooked_expr'], 1)
+    if (str(node['keys']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[keys] %s' % format_node_list(node['keys'], 0, True), 1)
+    if (str(node['exclusions']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[exclusions] %s' % format_node_list(node['exclusions'], 0, True), 1)
+    if (str(node['options']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[options] %s' % format_node_list(node['options'], 0, True), 1)
+    if (str(node['where_clause']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[where_clause] %s' % format_node(node['where_clause']), 1)
+    if (str(node['pktable']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[pktable] %s' % format_node(node['pktable']), 1)
+    if (str(node['old_conpfeqop']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[old_conpgeqop] %s' % format_node(node['old_conpgeqop']), 1)
 
     return add_indent(retval, indent)
 
