@@ -1039,6 +1039,12 @@ def format_node(node, indent=0):
 
         retval = format_partition_by(node)
 
+    elif is_a(node, 'PartitionSpec'):
+
+        node = cast(node, 'PartitionSpec')
+
+        retval = format_partition_spec(node)
+
     elif is_a(node, 'DefElem'):
 
         node = cast(node, 'DefElem')
@@ -1303,6 +1309,24 @@ def format_partition_by(node, indent=0):
     if (str(node['parentRel']) != '0x0'):
         retval += '\n'
         retval += add_indent('[parentRel] %s' % format_node(node['parentRel']) ,1)
+
+    return add_indent(retval, indent)
+
+def format_partition_spec(node, indent=0):
+    retval = 'PartitionSpec [istemplate=%(istemplate)s location=%(location)s]' % {
+        'istemplate': node['istemplate'],
+        'location': node['location'],
+    }
+
+    if (str(node['partElem']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partElem] %s' % format_node_list(node['partElem'], 0, True), 1)
+    if (str(node['enc_clauses']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[enc_clauses] %s' % format_node_list(node['enc_clauses']), 1)
+    if (str(node['subSpec']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[subSpec] %s' % format_node(node['subSpec']), 1)
 
     return add_indent(retval, indent)
 
