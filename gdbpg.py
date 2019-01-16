@@ -1248,7 +1248,7 @@ def format_create_stmt(node, indent=0):
     retval += add_indent('[relation] %s' % format_node(node['relation'], 0), 1)
 
     retval += '\n'
-    retval += add_indent('[tableElts] %s' % format_node_list(node['tableElts']), 1)
+    retval += add_indent('[tableElts] %s' % format_node_list(node['tableElts'], 0, True), 1)
 
     if (str(node['inhOids']) != '0x0'):
         retval += '\n'
@@ -1319,7 +1319,7 @@ def format_partition_by(node, indent=0):
 
     if (str(node['keys']) != '0x0'):
         retval += '\n'
-        retval += add_indent('[keys] %s' % format_node_list(node['keys']), 1)
+        retval += add_indent('[keys] %s' % format_node(node['keys']), 1)
     if (str(node['keyopclass']) != '0x0'):
         retval += '\n'
         retval += add_indent('[keyopclass] %s' % format_node(node['keyopclass']) ,1)
