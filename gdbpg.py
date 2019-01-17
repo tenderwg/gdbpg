@@ -506,6 +506,17 @@ def format_partition_bound_spec(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_partition_values_spec(node, indent=0):
+    retval = 'PartitionValuesSpec [location=%(location)s]' % {
+        'location': node['location'],
+    }
+    if (str(node['partValues']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partValues] %s' % format_node_list(node['partValues'], 0, True), 1)
+
+
+    return add_indent(retval, indent)
+
 def format_partition_range_item(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
@@ -1070,6 +1081,12 @@ def format_node(node, indent=0):
         node = cast(node, 'PartitionBoundSpec')
 
         retval = format_partition_bound_spec(node)
+
+    elif is_a(node, 'PartitionValuesSpec'):
+
+        node = cast(node, 'PartitionValuesSpec')
+
+        retval = format_partition_values_spec(node)
 
     elif is_a(node, 'PartitionRangeItem'):
 
