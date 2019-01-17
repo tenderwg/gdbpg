@@ -454,6 +454,31 @@ def format_partition_elem(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_index_elem(node, indent=0):
+    if (str(node) == '0x0'):
+        return '(NIL)'
+
+    retval = 'IndexElem [name=%(name)s indexcolname=%(indexcolname)s ordering=%(ordering)s nulls_ordering=%(nulls_ordering)s]' % {
+        'name': getchars(node['name']),
+        'indexcolname': getchars(node['indexcolname']),
+        'ordering': node['ordering'],
+        'nulls_ordering': node['nulls_ordering'],
+    }
+
+    if (str(node['expr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[expr] %s' % format_node(node['expr']), 1)
+
+    if (str(node['collation']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[collation] %s' % format_node_list(node['collation']), 1)
+
+    if (str(node['opclass']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[opclass] %s' % format_node(node['opclass']), 1)
+
+    return add_indent(retval, indent)
+
 def format_partition_bound_spec(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
@@ -1033,6 +1058,12 @@ def format_node(node, indent=0):
         node = cast(node, 'PartitionElem')
 
         retval = format_partition_elem(node)
+
+    elif is_a(node, 'IndexElem'):
+
+        node = cast(node, 'IndexElem')
+
+        retval = format_index_elem(node)
 
     elif is_a(node, 'PartitionBoundSpec'):
 
