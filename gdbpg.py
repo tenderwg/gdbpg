@@ -308,32 +308,25 @@ def format_appendplan_list(lst, indent):
     return add_indent(retval, indent + 1)
 
 def format_alter_table_cmd(node, indent=0):
-    if (str(node) == '0x0'):
-        return '(NIL)'
-
-    if (str(node['name']) == '0x0'):
-        name = '(NIL)'
-    else:
-        name = node['name']
-
-    retval = '''AlterTableCmd (subtype=%(subtype)s name=%(name)s behavior=%(behavior)s part_expanded=%(part_expanded)s)''' % {
+    retval = '''AlterTableCmd (subtype=%(subtype)s name=%(name)s behavior=%(behavior)s part_expanded=%(part_expanded)s missing_ok=%(missing_ok)s)''' % {
         'subtype': node['subtype'],
-        'name': name,
+        'name': getchars(node['name']),
         'behavior': node['behavior'],
-        'part_expanded': (int(node['part_expanded']) == 1)
+        'part_expanded': (int(node['part_expanded']) == 1),
+        'missing_ok': (int(node['missing_ok']) == 1),
     }
 
     if (str(node['def']) != '0x0'):
         retval += '\n'
-        retval += add_indent('[definition] %s' % format_node(node['def']), 1)
+        retval += add_indent('[def] %s' % format_node(node['def']), 1)
 
-    #if (str(node['transform']) != '0x0'):
-    #    retval += '\n'
-    #    retval += add_indent('- [transform] %s' % format_node(node['transform']), 1)
+    if (str(node['transform']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[transform] %s' % format_node(node['transform']), 1)
 
-    #if (str(node['partoids']) != '0x0'):
-    #    retval += '\n'
-    #    retval += add_indent('- [partoids] %s' % format_oid_list(node['partoids']), 1)
+    if (str(node['partoids']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[partoids] %s' % format_oid_list(node['partoids']), 1)
 
     return add_indent(retval, indent)
 
