@@ -862,6 +862,11 @@ def format_node(node, indent=0):
 
         retval = format_a_expr(node)
 
+    elif is_a(node, 'A_Const'):
+        node = cast(node, 'A_Const')
+
+        retval = format_a_const(node)
+
     elif is_a(node, 'CaseExpr'):
         node = cast(node, 'CaseExpr')
 
@@ -1679,6 +1684,14 @@ def format_a_expr(node, indent=0):
     if (str(node['rexpr']) != '0x0'):
         retval += '\n'
         retval += add_indent('[rexpr] %s' % format_node(node['rexpr']) ,1)
+
+    return add_indent(retval, indent)
+
+def format_a_const(node, indent=0):
+    retval = "A_Const [val=(%(val)s) location=%(location)s]" % {
+        'val': format_node(node['val'].address),
+        'location': node['location'],
+        }
 
     return add_indent(retval, indent)
 
