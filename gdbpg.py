@@ -352,6 +352,20 @@ def format_alter_partition_cmd(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_partition_cmd(node, indent=0):
+    retval = 'PartitionCmd' % {
+    }
+
+    if (str(node['name']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[name] %s' % format_node(node['name']), 1)
+
+    if (str(node['bound']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[bound] %s' % format_node(node['bound']), 1)
+
+    return add_indent(retval, indent)
+
 def format_alter_partition_id(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
@@ -1043,6 +1057,12 @@ def format_node(node, indent=0):
         node = cast(node, 'AlterPartitionCmd')
 
         retval = format_alter_partition_cmd(node)
+
+    elif is_a(node, 'PartitionCmd'):
+
+        node = cast(node, 'PartitionCmd')
+
+        retval = format_partition_cmd(node)
 
     elif is_a(node, 'AlterPartitionId'):
 
