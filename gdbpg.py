@@ -1359,7 +1359,7 @@ def format_create_stmt(node, indent=0):
     return add_indent(retval, indent)
 
 def format_index_stmt(node, indent=0):
-    retval = 'IndexStmt [idxname=%(idxname)s relationOid=%(relationOid)s accessMethod=%(accessMethod)s tableSpace=%(tableSpace)s idxcomment=%(idxcomment)s indexOid=%(indexOid)s is_part_child=%(is_part_child)s oldNode=%(oldNode)s\n           unique=%(unique)s primary=%(primary)s isconstraint=%(isconstraint)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s concurrent=%(concurrent)s altconname=%(altconname)s is_split_part=%(is_split_part)s]' % {
+    retval = 'IndexStmt [idxname=%(idxname)s relationOid=%(relationOid)s accessMethod=%(accessMethod)s tableSpace=%(tableSpace)s idxcomment=%(idxcomment)s indexOid=%(indexOid)s is_part_child=%(is_part_child)s oldNode=%(oldNode)s\n           unique=%(unique)s primary=%(primary)s isconstraint=%(isconstraint)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s concurrent=%(concurrent)s is_split_part=%(is_split_part)s parentIndexId=%(parentIndexId)s parentConstraintId=%(parentConstraintId)s]' % {
         'idxname': getchars(node['idxname']),
         'relationOid': node['relationOid'],
         'accessMethod': getchars(node['accessMethod']),
@@ -1374,8 +1374,9 @@ def format_index_stmt(node, indent=0):
         'deferrable': (int(node['deferrable']) == 1),
         'initdeferred': (int(node['initdeferred']) == 1),
         'concurrent': (int(node['concurrent']) == 1),
-        'altconname': getchars(node['altconname']),
         'is_split_part': (int(node['is_split_part']) == 1),
+        'parentIndexId': node['parentIndexId'],
+        'parentConstraintId': node['parentConstraintId'],
         }
 
     if (str(node['relation']) != '0x0'):
