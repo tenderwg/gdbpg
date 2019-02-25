@@ -12,6 +12,11 @@ PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion',
                 'Limit', 'DML', 'SplitUpdate', 'AssertOp', 'RowTrigger',
                 'PartitionSelector' ]
 
+PathNodes = ['Path', 'AppendOnlyPath', 'AOCSPath', 'ExternalPath', 'PartitionSelectorPath',
+             'IndexPath', 'BitmapHeapPath', 'BitmapAndPath', 'BitmapOrPath', 'TidPath',
+             'CdbMotionPath', 'ForeignPath', 'AppendPath', 'MergeAppendPath', 'ResultPath',
+             'HashPath', 'MergePath', 'MaterialPath', 'NestPath', 'JoinPath', 'UniquePath'] 
+
 def format_plan_tree(tree, indent=0):
     'formats a plan (sub)tree, with custom indentation'
 
@@ -483,6 +488,77 @@ def format_index_elem(node, indent=0):
     if (str(node['opclass']) != '0x0'):
         retval += '\n'
         retval += add_indent('[opclass] %s' % format_node(node['opclass']), 1)
+
+    return add_indent(retval, indent)
+
+def format_path(node, indent=0):
+    extra = ''
+    retval = '%(type)s [pathtype=%(pathtype)s parent=%(parent)s rows=%(rows)s startup_cost=%(startup_cost)s total_cost=%(total_cost)s memory=%(memory)s motionHazard=%(motionHazard)s rescannable=%(rescannable)s sameslice_relids=%(sameslice_relids)s locus=%(locus)s' % {
+        'type': format_type(node['type']),    # type of the Node
+        'pathtype': node['pathtype'],
+        'parent': node['parent'],
+        'rows': node['rows'],
+        'startup_cost': node['startup_cost'],
+        'total_cost': node['total_cost'],
+        'memory': node['memory'],
+        'motionHazard': node['motionHazard'],
+        'rescannable': node['rescannable'],
+        'sameslice_relids': node['sameslice_relids'],
+        'locus': node['locus'].address,
+    }
+
+    if is_a(node, 'JoinPath') or is_a(node, 'NestPath') or is_a(node, 'MergePath') or is_a(node, 'HashPath'):
+        joinpath = cast(node, 'JoinPath')
+        extra = ' jointype=%s' % (joinpath['jointype'])
+
+    retval += '%s]' % (extra)
+
+
+    if (str(node['parent']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[parent] %s' % format_node(node['parent']), 1)
+
+    if (str(node['param_info']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[param_info] %s' % format_node(node['param_info']), 1)
+
+
+    if (str(node['pathkeys']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[pathkeys] %s' % format_node_list(node['pathkeys']), 1)
+
+    if is_a(node, 'JoinPath') or is_a(node, 'NestPath') or is_a(node, 'MergePath') or is_a(node, 'HashPath'):
+        joinpath = cast(node, 'JoinPath')
+        joinpath = cast(node, 'JoinPath')
+        if (str(joinpath['outerjoinpath']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[outerjoinpath] %s' % format_node(joinpath['outerjoinpath']), 1)
+
+        if (str(joinpath['innerjoinpath']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[innerjoinpath] %s' % format_node(joinpath['innerjoinpath']), 1)
+
+        if (str(joinpath['joinrestrictinfo']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[joinrestrictinfo] %s' % format_node_list(joinpath['joinrestrictinfo'], 0, True), 1)
+
+    if is_a(node, 'MaterialPath'):
+        materialpath = cast(node, 'MaterialPath')
+        if (str(materialpath['subpath']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[subpath] %s' % format_node(materialpath['subpath']), 1)
+
+    if is_a(node, 'CdbMotionPath'):
+        cdbmotionpath = cast(node, 'CdbMotionPath')
+        if (str(cdbmotionpath['subpath']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[subpath] %s' % format_node(cdbmotionpath['subpath']), 1)
+
+    if is_a(node, 'UniquePath'):
+        uniquepath = cast(node, 'UniquePath')
+        if (str(uniquepath['subpath']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[subpath] %s' % format_node(uniquepath['subpath']), 1)
 
     return add_indent(retval, indent)
 
@@ -1100,6 +1176,12 @@ def format_node(node, indent=0):
 
         retval = format_index_elem(node)
 
+    elif is_a(node, 'Path'):
+
+        node = cast(node, 'Path')
+
+        retval = format_path(node)
+
     elif is_a(node, 'PartitionBoundSpec'):
 
         node = cast(node, 'PartitionBoundSpec')
@@ -1243,6 +1325,9 @@ def format_node(node, indent=0):
 
         retval = format_query_info(node)
 
+    elif is_pathnode(node):
+        node = cast(node, 'Path')
+        retval = format_path(node)
 
     elif is_plannode(node):
         node = cast(node, 'Plan')
@@ -1254,6 +1339,14 @@ def format_node(node, indent=0):
         retval = format_type(type_str)
 
     return add_indent(str(retval), indent)
+
+def is_pathnode(node):
+    for nodestring in PathNodes:
+        #print "testing %s against %s" % (nodestring, node.address)
+        if is_a(node, nodestring):
+            return True
+
+    return False
 
 def is_plannode(node):
     for nodestring in PlanNodes:
