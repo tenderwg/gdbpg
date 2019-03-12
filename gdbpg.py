@@ -1113,6 +1113,12 @@ def format_node(node, indent=0):
 
         retval = format_bool_expr(node)
 
+    elif is_a(node, 'SubLink'):
+
+        node = cast(node, 'SubLink')
+
+        retval = format_sublink(node)
+
     elif is_a(node, 'FromExpr'):
 
         node = cast(node, 'FromExpr')
@@ -1844,7 +1850,25 @@ def format_from_expr(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_sublink(node, indent=0):
+    retval = """SubLink [subLinkType=%(subLinkType)s location=%(location)s]""" % {
+        'subLinkType': node['subLinkType'],
+        'location': (int(node['location']) == 1),
+    }
 
+    if (str(node['testexpr']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[testexpr] %s' % format_node(node['testexpr']) ,1)
+
+    if (str(node['operName']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[operName] %s' % format_node_list(node['operName'], 0, True), 1)
+
+    if (str(node['subselect']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[subselect]\n%s' % format_node(node['subselect']) ,1)
+
+    return add_indent(retval, indent)
 
 def format_join_expr(node, indent=0):
     retval = """JoinExpr [jointype=%(jointype)s isNatural=%(isNatural)s]""" % {
