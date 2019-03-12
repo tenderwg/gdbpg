@@ -810,8 +810,12 @@ def format_char(value):
     return str_val.split(' ')[1][1:-1]
 
 
-def format_relids(relids):
-    return '(not implemented)'
+def format_bitmapset(bitmapset):
+    num_words = int(bitmapset['nwords'])
+    retval = '0x'
+    for word in reversed(range(num_words)):
+        retval += '%08x' % int(bitmapset['words'][word])
+    return retval
 
 
 def format_node_array(array, start_idx, length, indent=0):
@@ -994,14 +998,7 @@ def format_node(node, indent=0):
 
         node = cast(node, 'RelOptInfo')
 
-        retval = 'RelOptInfo (kind=%(kind)s relids=%(relids)s rtekind=%(rtekind)s relid=%(relid)s rows=%(rows)s width=%(width)s)' % {
-            'kind': node['reloptkind'],
-            'rows': node['rows'],
-            'width': node['width'],
-            'relid': node['relid'],
-            'relids': format_relids(node['relids']),
-            'rtekind': node['rtekind'],
-        }
+        retval = format_reloptinfo(node)
 
     elif is_a(node, 'RangeTblEntry'):
 
@@ -1661,6 +1658,19 @@ def format_constraint(node, indent=0):
         retval += add_indent('[old_conpgeqop] %s' % format_node(node['old_conpgeqop']), 1)
 
     return add_indent(retval, indent)
+
+def format_reloptinfo(node, indent=0):
+    retval = 'RelOptInfo (kind=%(kind)s relids=%(relids)s rtekind=%(rtekind)s relid=%(relid)s rows=%(rows)s width=%(width)s)' % {
+        'kind': node['reloptkind'],
+        'rows': node['rows'],
+        'width': node['width'],
+        'relid': node['relid'],
+        'relids': format_bitmapset(node['relids']),
+        'rtekind': node['rtekind'],
+    }
+
+    return add_indent(retval, indent)
+
 
 def format_rte(node, indent=0):
     retval = 'RangeTblEntry (rtekind=%(rtekind)s relid=%(relid)s relkind=%(relkind)s' % {
