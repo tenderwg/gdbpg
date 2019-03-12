@@ -979,6 +979,11 @@ def format_node(node, indent=0):
             'args': format_node_list(node['args'], 2, True)
         }
 
+    elif is_a(node, 'CoalesceExpr'):
+        node = cast(node, 'CoalesceExpr')
+
+        retval = format_coalesce_expr(node)
+
     elif is_a(node, 'CaseWhen'):
         node = cast(node, 'CaseWhen')
 
@@ -1828,6 +1833,18 @@ def format_a_const(node, indent=0):
         'val': format_node(node['val'].address),
         'location': node['location'],
         }
+
+    return add_indent(retval, indent)
+
+def format_coalesce_expr(node, indent=0):
+    retval = "CoalesceExpr [coalescetype=%(coalescetype)s location=%(location)s]" % {
+        'coalescetype': node['coalescetype'],
+        'location': node['location'],
+        }
+
+    if (str(node['args']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[args] %s' % format_node_list(node['args'], 0, True), 1)
 
     return add_indent(retval, indent)
 
