@@ -27,7 +27,7 @@ def format_plan_tree(tree, indent=0):
     node_extra = ''
     if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan'):
         scan = cast(tree, 'Scan')
-        node_extra += '   <scanrelid=%(scanrelid)s)s' % {
+        node_extra += '   <scanrelid=%(scanrelid)s' % {
             'scanrelid': scan['scanrelid'],
         }
 
