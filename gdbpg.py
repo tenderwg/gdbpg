@@ -1833,44 +1833,42 @@ def format_bool_expr(node, indent=0):
         'clauses': format_node_list(node['args'], 1, True)
     }
 
-def format_from_expr(node):
-    retval = """FromExpr
-\tfromlist:
-%(fromlist)s""" % { 'fromlist': format_node_list(node['fromlist'], 2, True) }
+def format_from_expr(node, indent=0):
+    retval = 'FromExpr'
+    if (str(node['fromlist']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[fromlist] %s' % format_node_list(node['fromlist'], 0, True), 1)
     if (str(node['quals']) != '0x0'):
-        retval +='''
-\tquals:
-%(quals)s''' % {
-            'quals': format_node(node['quals'],2)
-        }
-    return retval
+        retval += '\n'
+        retval += add_indent('[quals] %s' % format_node(node['quals']) ,1)
 
-def format_join_expr(node):
-    retval = """JoinExpr (jointype=%(jointype)s isNatural=%(isNatural)s)""" % {
+    return add_indent(retval, indent)
+
+
+
+def format_join_expr(node, indent=0):
+    retval = """JoinExpr [jointype=%(jointype)s isNatural=%(isNatural)s]""" % {
         'jointype': node['jointype'],
         'isNatural': (int(node['isNatural']) == 1),
     }
 
     if (str(node['larg']) != '0x0'):
-        retval += '''\n\tlarg:\n%(larg)s''' % {
-            'larg': format_node(node['larg'],2)
-        }
+        retval += '\n'
+        retval += add_indent('[larg] %s' % format_node(node['larg']) ,1)
 
     if (str(node['rarg']) != '0x0'):
-        retval += '''\n\trarg:\n%(rarg)s''' % {
-            'rarg': format_node(node['rarg'],2)
-        }
+        retval += '\n'
+        retval += add_indent('[rarg] %s' % format_node(node['rarg']) ,1)
 
-    if(str(node['usingClause']) != '0x0'):
-        retval += """\n\tusingClause:\n%(usingClause)s""" % {
-            'usingClause': format_node_list(node['usingClause'], 2, True)
-        }
+    if (str(node['usingClause']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[usingClause] %s' % format_node_list(node['usingClause'], 0, True), 1)
 
     if (str(node['quals']) != '0x0'):
-        retval += '''\n\tquals:\n%(quals)s''' % {
-            'quals': format_node(node['quals'],2)
-        }
-    return retval
+        retval += '\n'
+        retval += add_indent('[quals] %s' % format_node(node['quals']) ,1)
+
+    return add_indent(retval, indent)
 
 def format_table_like_clause(node):
     retval = "TableLikeClause [options=%08x]" % int(node['options'])
