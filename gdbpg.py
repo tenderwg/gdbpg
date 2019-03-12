@@ -790,6 +790,12 @@ def format_node(node, indent=0):
             'hashable': (int(node['hashable']) == 1),
         }
 
+    elif is_a(node, 'TableLikeClause'):
+
+        node = cast(node, 'TableLikeClause')
+
+        retval = format_table_like_clause(node)
+
     elif is_a(node, 'Var'):
 
         # we assume the list contains Node instances (probably safe for Plan fields)
@@ -1761,6 +1767,15 @@ def format_join_expr(node):
         retval += '''\n\tquals:\n%(quals)s''' % {
             'quals': format_node(node['quals'],2)
         }
+    return retval
+
+def format_table_like_clause(node):
+    retval = "TableLikeClause [options=%08x]" % int(node['options'])
+
+    if (str(node['relation']) != '0x0'):
+        retval += '\n'
+        retval += add_indent('[relation] %s' % format_node(node['relation']), 1)
+
     return retval
 
 def format_const(node):
