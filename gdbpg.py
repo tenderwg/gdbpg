@@ -1080,6 +1080,12 @@ def format_node(node, indent=0):
 
         retval = format_op_expr(node)
 
+    elif is_a(node, 'NullIfExpr'):
+
+        node = cast(node, 'OpExpr')
+
+        retval = format_op_expr(node)
+
     elif is_a(node, 'DistinctExpr'):
 
         node = cast(node, 'OpExpr')
@@ -1717,6 +1723,9 @@ def format_op_expr(node, indent=0):
 
     if is_a(cast(node, 'Node'), 'DistinctExpr'):
         nodetag =  'DistinctExpr'
+
+    if is_a(cast(node, 'Node'), 'NullIfExpr'):
+        nodetag =  'NullIfExpr'
 
     retval = """%(nodetag)s [opno=%(opno)s opfuncid=%(opfuncid)s opresulttype=%(opresulttype)s""" % {
         'nodetag': nodetag,
