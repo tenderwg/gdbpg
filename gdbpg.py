@@ -537,51 +537,24 @@ def format_path(node, indent=0):
     retval += '%s]' % (extra)
 
 
-    if (str(node['parent']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[parent] %s' % format_node(node['parent']), 1)
-
-    if (str(node['param_info']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[param_info] %s' % format_node(node['param_info']), 1)
-
-
-    if (str(node['pathkeys']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[pathkeys] %s' % format_node_list(node['pathkeys']), 1)
+    retval += format_optional_node_field(node, 'parent')
+    retval += format_optional_node_field(node, 'param_info')
+    retval += format_optional_node_list(node, 'pathkeys', newLine=False)
 
     if is_a(node, 'JoinPath') or is_a(node, 'NestPath') or is_a(node, 'MergePath') or is_a(node, 'HashPath'):
         joinpath = cast(node, 'JoinPath')
-        joinpath = cast(node, 'JoinPath')
-        if (str(joinpath['outerjoinpath']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[outerjoinpath] %s' % format_node(joinpath['outerjoinpath']), 1)
-
-        if (str(joinpath['innerjoinpath']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[innerjoinpath] %s' % format_node(joinpath['innerjoinpath']), 1)
-
-        if (str(joinpath['joinrestrictinfo']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[joinrestrictinfo] %s' % format_node_list(joinpath['joinrestrictinfo'], 0, True), 1)
+        retval += format_optional_node_field(joinpath, 'outerjoinpath')
+        retval += format_optional_node_field(joinpath, 'innerjoinpath')
+        retval += format_optional_node_list(joinpath, 'joinrestrictinfo')
 
     if is_a(node, 'MaterialPath'):
-        materialpath = cast(node, 'MaterialPath')
-        if (str(materialpath['subpath']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[subpath] %s' % format_node(materialpath['subpath']), 1)
+        retval += format_optional_node_field(node, 'subpath', 'MaterialPath')
 
     if is_a(node, 'CdbMotionPath'):
-        cdbmotionpath = cast(node, 'CdbMotionPath')
-        if (str(cdbmotionpath['subpath']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[subpath] %s' % format_node(cdbmotionpath['subpath']), 1)
+        retval += format_optional_node_field(node, 'subpath', 'CdbMotionPath')
 
     if is_a(node, 'UniquePath'):
-        uniquepath = cast(node, 'UniquePath')
-        if (str(uniquepath['subpath']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[subpath] %s' % format_node(uniquepath['subpath']), 1)
+        retval += format_optional_node_field(node, 'subpath', 'UniquePath')
 
     return add_indent(retval, indent)
 
