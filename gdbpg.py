@@ -25,7 +25,7 @@ def format_plan_tree(tree, indent=0):
         return '-> (NULL)'
 
     node_extra = ''
-    if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan'):
+    if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan') or is_a(tree, 'FunctionScan'):
         scan = cast(tree, 'Scan')
         node_extra += '   <scanrelid=%(scanrelid)s' % {
             'scanrelid': scan['scanrelid'],
@@ -38,7 +38,11 @@ def format_plan_tree(tree, indent=0):
                 'indexorderdir': indexscan['indexorderdir']
             }
 
-        node_extra += '>\n'
+        if is_a(tree, 'FunctionScan'):
+            functionscan = cast(tree, 'FunctionScan')
+            node_extra += ' funcordinality=%s' % functionscan['funcordinality']
+
+        node_extra += '>'
 
     if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
         join = cast(tree, 'Join')
@@ -266,23 +270,9 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'FunctionScan'):
         functionscan = cast(tree, 'FunctionScan')
-        if str(functionscan['funcexpr']) != '0x0':
-            # Resconstant qual might be a list
-            retval+='\n\tfuncexpr:\n%(funcexpr)s' % {
-                'funcexpr': format_node(functionscan['funcexpr'], 2)
-            }
-
-        if str(functionscan['funccolnames']) != '0x0':
-            # Resconstant qual might be a list
-            retval+='\n\tfunccolnames: %(funccolnames)s' % {
-                'funccolnames': format_node_list(functionscan['funccolnames'])
-            }
-
-        if str(functionscan['funccolcollations']) != '0x0':
-            # Resconstant qual might be a list
-            retval+='\n\tfunccolcollations:\n%(funccolcollations)s' % {
-                'funccolcollations': format_oid_list(functionscan['funccolcollations'])
-            }
+        if (str(functionscan['functions']) != '0x0'):
+            retval += '\n'
+            retval += add_indent('[functions] %s' % format_node_list(functionscan['functions'], 0, True), 1)
 
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
