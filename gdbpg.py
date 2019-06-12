@@ -547,7 +547,7 @@ def format_partition(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'Partition (partid=%(partid)s parrelid=%(parrelid)s parkind=%(parkind)s parlevel=%(parlevel)s paristemplate=%(paristemplate)s parnatts=%(parnatts)s paratts=%(paratts)s parclass=%(parclass)s)' % {
+    retval = 'Partition [partid=%(partid)s parrelid=%(parrelid)s parkind=%(parkind)s parlevel=%(parlevel)s paristemplate=%(paristemplate)s parnatts=%(parnatts)s paratts=%(paratts)s parclass=%(parclass)s]' % {
         'partid': node['partid'],
         'parrelid': node['parrelid'],
         'parkind': node['parkind'],
@@ -564,7 +564,7 @@ def format_type_cast(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'TypeCast (location=%(location)s)' % {
+    retval = 'TypeCast [location=%(location)s]' % {
         'location': node['location'],
     }
 
@@ -578,7 +578,7 @@ def format_def_elem(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'DefElem (defnamespace=%(defnamespace)s defname=%(defname)s defaction=%(defaction)s)' % {
+    retval = 'DefElem [defnamespace=%(defnamespace)s defname=%(defname)s defaction=%(defaction)s]' % {
         'defnamespace': node['defnamespace'],
         'defname': node['defname'],
         'defaction': node['defaction'],
@@ -592,7 +592,7 @@ def format_type_name(node, indent=0):
     if (str(node) == '0x0'):
         return '(NIL)'
 
-    retval = 'TypeName (typeOid=%(typeOid)s timezone=%(timezone)s setof=%(setof)s pct_type=%(pct_type)s typemod=%(typemod)s location=%(location)s)' % {
+    retval = 'TypeName [typeOid=%(typeOid)s timezone=%(timezone)s setof=%(setof)s pct_type=%(pct_type)s typemod=%(typemod)s location=%(location)s]' % {
         'typeOid': node['typeOid'],
         'timezone': (int(node['timezone']) == 1),
         'setof': (int(node['setof']) == 1),
@@ -1664,7 +1664,7 @@ def format_var(node, indent=0):
     return add_indent(retval, indent)
 
 def format_const(node, indent=0):
-    retval = "Const (consttype=%s" % node['consttype']
+    retval = "Const [consttype=%s" % node['consttype']
     if (str(node['consttypmod']) != '0x0'):
         retval += " consttypmod=%s" % node['consttypmod']
 
@@ -1686,7 +1686,7 @@ def format_const(node, indent=0):
             'constisnull': (int(node['constisnull']) == 1),
             'constbyval': (int(node['constbyval']) == 1) }
 
-    retval += ')'
+    retval += ']'
 
     return add_indent(retval, indent)
 
