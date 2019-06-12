@@ -870,39 +870,9 @@ def format_node(node, indent=0):
 
     elif is_a(node, 'Var'):
 
-        # we assume the list contains Node instances (probably safe for Plan fields)
         node = cast(node, 'Var')
 
-        if node['varno'] == 65000:
-            varno = "INNER"
-        elif node['varno'] == 65001:
-            varno = "OUTER"
-        else:
-            varno = node['varno']
-
-        retval = 'Var (varno=%(no)s varattno=%(attno)s' % {
-            'no': varno,
-            'attno': node['varattno'],
-
-        }
-
-        if node['varcollid'] != 0:
-            retval += ' varcollid=%s' % node['varcollid']
-
-        retval += ' levelsup=%(levelsup)s' % {
-            'levelsup': node['varlevelsup']
-        }
-
-        if node['varnoold'] != 0:
-            retval += ' varnoold=%s' % node['varnoold']
-
-        if node['varoattno'] != 0:
-            retval += ' varoattno=%s' % node['varoattno']
-
-        if node['location'] != -1:
-            retval += ' location=%s' % node['location']
-
-        retval += ')'
+        retval = format_var(node)
 
     elif is_a(node, 'Const'):
         node = cast(node, 'Const')
@@ -1945,6 +1915,40 @@ def format_table_like_clause(node):
         retval += add_indent('[relation] %s' % format_node(node['relation']), 1)
 
     return retval
+
+def format_var(node, indent=0):
+    if node['varno'] == 65000:
+        varno = "INNER"
+    elif node['varno'] == 65001:
+        varno = "OUTER"
+    else:
+        varno = node['varno']
+
+    retval = 'Var [varno=%(varno)s varattno=%(attno)s' % {
+        'varno': varno,
+        'attno': node['varattno'],
+
+    }
+
+    if node['varcollid'] != 0:
+        retval += ' varcollid=%s' % node['varcollid']
+
+    retval += ' levelsup=%(levelsup)s' % {
+        'levelsup': node['varlevelsup']
+    }
+
+    if node['varnoold'] != 0:
+        retval += ' varnoold=%s' % node['varnoold']
+
+    if node['varoattno'] != 0:
+        retval += ' varoattno=%s' % node['varoattno']
+
+    if node['location'] != -1:
+        retval += ' location=%s' % node['location']
+
+    retval += ']'
+
+    return add_indent(retval, indent)
 
 def format_const(node):
     retval = "Const (consttype=%s" % node['consttype']
