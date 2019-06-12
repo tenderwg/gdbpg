@@ -907,11 +907,7 @@ def format_node(node, indent=0):
     elif is_a(node, 'CaseWhen'):
         node = cast(node, 'CaseWhen')
 
-        retval = '''CaseWhen (expr=%(expr)s result=%(result)s)''' % {
-                'expr': format_node(node['expr']),
-                'result': format_node(node['result'])
-        }
-
+        retval = format_case_when(node)
 
     elif is_a(node, 'RangeTblRef'):
 
@@ -1786,6 +1782,16 @@ def format_coalesce_expr(node, indent=0):
     if (str(node['args']) != '0x0'):
         retval += '\n'
         retval += add_indent('[args] %s' % format_node_list(node['args'], 0, True), 1)
+
+    return add_indent(retval, indent)
+
+def format_case_when(node, indent=0):
+    retval = '''CaseWhen''' % {
+            'result': format_node(node['result'])
+    }
+
+    retval += format_optional_node_field(node, 'expr', skip_tag=True)
+    retval += format_optional_node_field(node, 'result')
 
     return add_indent(retval, indent)
 
