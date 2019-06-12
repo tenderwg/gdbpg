@@ -882,42 +882,7 @@ def format_node(node, indent=0):
     elif is_a(node, 'Aggref'):
         node = cast(node, 'Aggref')
 
-        retval = '''Aggref (aggfnoid=%(fnoid)s aggtype=%(aggtype)s''' % {
-            'fnoid': node['aggfnoid'],
-            'aggtype': node['aggtype'],
-        }
-
-        if node['aggcollid'] != 0:
-            retval += ' aggcollid=%s' % node['aggcollid']
-
-        if node['inputcollid'] != 0:
-            retval += ' inputcollid=%s' % node['inputcollid']
-
-        retval += ''' aggstar=%(aggstar)s aggvariadic=%(aggvariadic)s aggkind='%(aggkind)s' agglevelsup=%(agglevelsup)s aggstage=%(aggstage)s location=%(location)s)''' % {
-            'aggstar': (int(node['aggstar']) == 1),
-            'aggvariadic': (int(node['aggvariadic']) == 1),
-            'aggkind': format_char(node['aggkind']),
-            'agglevelsup': node['agglevelsup'],
-            'aggstage': node['aggstage'],
-            'location': node['location'],
-        }
-
-        if str(node['aggdirectargs']) != '0x0':
-            retval += '\n\taggdirectargs:'
-            retval += '\n%s' % format_node_list(node['aggdirectargs'], 2, True)
-
-        if str(node['args']) != '0x0':
-            retval += '\n\targs:'
-            retval += '\n%s' % format_node_list(node['args'], 2, True)
-
-        if str(node['aggorder']) != '0x0':
-            retval += '\n\taggorder:'
-            retval += '\n%s' % format_node_list(node['aggorder'], 2, True)
-
-        if str(node['aggfilter']) != '0x0':
-            retval += '\n\taggfilter:'
-            retval += '\n%s' % format_node(node['aggfilter'], 2)
-
+        retval = format_aggref(node)
 
     elif is_a(node, 'A_Expr'):
         node = cast(node, 'A_Expr')
@@ -1975,6 +1940,33 @@ def format_const(node):
 
     retval += ')'
     return retval
+
+def format_aggref(node, indent=0):
+    retval = '''Aggref (aggfnoid=%(fnoid)s aggtype=%(aggtype)s''' % {
+        'fnoid': node['aggfnoid'],
+        'aggtype': node['aggtype'],
+    }
+
+    if node['aggcollid'] != 0:
+        retval += ' aggcollid=%s' % node['aggcollid']
+
+    if node['inputcollid'] != 0:
+        retval += ' inputcollid=%s' % node['inputcollid']
+
+    retval += ''' aggstar=%(aggstar)s aggvariadic=%(aggvariadic)s aggkind='%(aggkind)s' agglevelsup=%(agglevelsup)s aggstage=%(aggstage)s location=%(location)s)''' % {
+        'aggstar': (int(node['aggstar']) == 1),
+        'aggvariadic': (int(node['aggvariadic']) == 1),
+        'aggkind': format_char(node['aggkind']),
+        'agglevelsup': node['agglevelsup'],
+        'aggstage': node['aggstage'],
+        'location': node['location'],
+    }
+
+    retval += format_optional_node_list(node, 'args', skip_tag=True)
+    retval += format_optional_node_list(node, 'aggdirectargs')
+    retval += format_optional_node_list(node, 'aggorder')
+    retval += format_optional_node_field(node, 'aggfilter')
+    return add_indent(retval, indent)
 
 def is_a(n, t):
     '''checks that the node has type 't' (just like IsA() macro)'''
