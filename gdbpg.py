@@ -279,6 +279,17 @@ def format_optional_node_field(node, fieldname, cast_to=None, skip_tag=False, in
             return add_indent('[%s] %s' % (fieldname, format_node(node[fieldname])), indent, True)
     return ''
 
+def format_restrict_info(node, indent=0):
+    retval = 'RestrictInfo [is_pushed_down=%(is_pushed_down)s can_join=%(can_join)s outerjoin_delayed=%(outerjoin_delayed)s]' % {
+        'push_down': (int(node['is_pushed_down']) == 1),
+        'can_join': (int(node['can_join']) == 1),
+        'outerjoin_delayed': (int(node['outerjoin_delayed']) == 1)
+    }
+    retval += format_optional_node_field(node, 'clause', skip_tag=True)
+    retval += format_optional_node_field(node, 'orclause', skip_tag=True)
+
+    return add_indent(retval, indent)
+
 def format_query_info(node, indent=0):
     'formats a query node with custom indentation'
     if (str(node) == '0x0'):
@@ -980,15 +991,7 @@ def format_node(node, indent=0):
 
         node = cast(node, 'RestrictInfo')
 
-        retval = '''RestrictInfo (pushed_down=%(push_down)s can_join=%(can_join)s delayed=%(delayed)s)
-%(clause)s
-%(orclause)s''' % {
-            'clause': format_node(node['clause'], 1),
-            'orclause': format_node(node['orclause'], 1),
-            'push_down': (int(node['is_pushed_down']) == 1),
-            'can_join': (int(node['can_join']) == 1),
-            'delayed': (int(node['outerjoin_delayed']) == 1)
-        }
+        retval = format_restrict_info(node)
 
     elif is_a(node, 'OpExpr'):
 
