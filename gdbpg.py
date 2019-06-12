@@ -860,13 +860,7 @@ def format_node(node, indent=0):
 
         node = cast(node, 'SortGroupClause')
 
-        retval = 'SortGroupClause (tleSortGroupRef=%(tleSortGroupRef)s eqop=%(eqop)s sortop=%(sortop)s nulls_first=%(nulls_first)s hashable=%(hashable)s)' % {
-            'tleSortGroupRef': node['tleSortGroupRef'],
-            'eqop': node['eqop'],
-            'sortop': node['sortop'],
-            'nulls_first': (int(node['nulls_first']) == 1),
-            'hashable': (int(node['hashable']) == 1),
-        }
+        retval = format_sort_group_clause(node)
 
     elif is_a(node, 'TableLikeClause'):
 
@@ -1929,6 +1923,17 @@ def format_target_entry(node, indent=0):
     }
 
     retval += format_optional_node_field(node, 'expr', skip_tag=True)
+
+    return add_indent(retval, indent)
+
+def format_sort_group_clause(node, indent=0):
+    retval = 'SortGroupClause [tleSortGroupRef=%(tleSortGroupRef)s eqop=%(eqop)s sortop=%(sortop)s nulls_first=%(nulls_first)s hashable=%(hashable)s]' % {
+        'tleSortGroupRef': node['tleSortGroupRef'],
+        'eqop': node['eqop'],
+        'sortop': node['sortop'],
+        'nulls_first': (int(node['nulls_first']) == 1),
+        'hashable': (int(node['hashable']) == 1),
+    }
 
     return add_indent(retval, indent)
 
