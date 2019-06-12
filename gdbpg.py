@@ -852,26 +852,9 @@ def format_node(node, indent=0):
     type_str = str(node['type'])
 
     if is_a(node, 'TargetEntry'):
-
-        # we assume the list contains Node instances (probably safe for Plan fields)
         node = cast(node, 'TargetEntry')
 
-        name_ptr = node['resname'].cast(gdb.lookup_type('char').pointer())
-        name = "(NULL)"
-        if str(name_ptr) != '0x0':
-            name = '"' + (name_ptr.string()) + '"'
-
-        retval = 'TargetEntry (resno=%(resno)s resname=%(name)s ressortgroupref=%(ressortgroupref)s origtbl=%(tbl)s origcol=%(col)s junk=%(junk)s)' % {
-            'resno': node['resno'],
-            'name': name,
-            'ressortgroupref': node['ressortgroupref'],
-            'tbl': node['resorigtbl'],
-            'col': node['resorigcol'],
-            'junk': (int(node['resjunk']) == 1),
-        }
-        retval += "\n%(expr)s" % {
-            'expr': format_node(node['expr'], 1)
-        }
+        retval = format_target_entry(node)
 
     elif is_a(node, 'SortGroupClause'):
 
@@ -1932,6 +1915,20 @@ def format_join_expr(node, indent=0):
     if (str(node['quals']) != '0x0'):
         retval += '\n'
         retval += add_indent('[quals] %s' % format_node(node['quals']) ,1)
+
+    return add_indent(retval, indent)
+
+def format_target_entry(node, indent=0):
+    retval = 'TargetEntry [resno=%(resno)s resname=%(name)s ressortgroupref=%(ressortgroupref)s origtbl=%(tbl)s origcol=%(col)s junk=%(junk)s]' % {
+        'resno': node['resno'],
+        'name': getchars(node['resname']),
+        'ressortgroupref': node['ressortgroupref'],
+        'tbl': node['resorigtbl'],
+        'col': node['resorigcol'],
+        'junk': (int(node['resjunk']) == 1),
+    }
+
+    retval += format_optional_node_field(node, 'expr', skip_tag=True)
 
     return add_indent(retval, indent)
 
