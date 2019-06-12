@@ -897,14 +897,7 @@ def format_node(node, indent=0):
     elif is_a(node, 'CaseExpr'):
         node = cast(node, 'CaseExpr')
 
-        retval = '''CaseExpr (casetype=%(casetype)s defresult=%(defresult)s arg=%(arg)s)
-\tCaseExpr Args:
-%(args)s''' % {
-            'casetype': node['casetype'],
-            'defresult': format_node(node['defresult']),
-            'arg': format_node(node['arg']),
-            'args': format_node_list(node['args'], 2, True)
-        }
+        retval = format_case_expr(node)
 
     elif is_a(node, 'CoalesceExpr'):
         node = cast(node, 'CoalesceExpr')
@@ -1769,6 +1762,18 @@ def format_a_const(node, indent=0):
         'val': format_node(node['val'].address),
         'location': node['location'],
         }
+
+    return add_indent(retval, indent)
+
+def format_case_expr(node, indent=0):
+    retval = 'CaseExpr [casetype=%(casetype)s casecollid=%(casecollid)s] ' % {
+        'casetype': node['casetype'],
+        'casecollid': node['casecollid'],
+    }
+
+    retval += format_optional_node_field(node, 'arg')
+    retval += format_optional_node_list(node, 'args')
+    retval += format_optional_node_field(node, 'defresult')
 
     return add_indent(retval, indent)
 
