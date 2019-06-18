@@ -734,7 +734,18 @@ def format_param(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_subplan(node, indent=0):
+    retval = 'SubPlan [subLinkType=%(subLinkType)s plan_id=%(plan_id)s plan_name=%(plan_name)s]' % {
+        'subLinkType': node['subLinkType'],
+        'plan_id': node['plan_id'],
+        'plan_name': node['plan_name'],
+    }
 
+    retval += format_optional_node_field(node, 'testexpr')
+    retval += format_optional_node_list(node, 'paramids')
+    retval += format_optional_node_list(node, 'args')
+
+    return add_indent(retval, indent)
 
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
@@ -1185,13 +1196,7 @@ def format_node(node, indent=0):
 
         node = cast(node, 'SubPlan')
 
-        retval = '''SubPlan (subLinkType=%(subLinkType)s plan_id=%(plan_id)s plan_name=%(plan_name)s)
-%(args)s''' % {
-            'subLinkType': node['subLinkType'],
-            'plan_id': node['plan_id'],
-            'plan_name': node['plan_name'],
-            'args': format_node_list(node['args'], 1, True)
-        }
+        retval = format_subplan(node)
 
     elif is_a(node, 'PartitionRule'):
 
