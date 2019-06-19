@@ -344,17 +344,9 @@ def format_alter_table_cmd(node, indent=0):
         'missing_ok': (int(node['missing_ok']) == 1),
     }
 
-    if (str(node['def']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[def] %s' % format_node(node['def']), 1)
-
-    if (str(node['transform']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[transform] %s' % format_node(node['transform']), 1)
-
-    if (str(node['partoids']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partoids] %s' % format_oid_list(node['partoids']), 1)
+    retval += format_optional_node_field(node, 'def')
+    retval += format_optional_node_field(node, 'transform')
+    retval += format_optional_node_list(node, 'partoids')
 
     return add_indent(retval, indent)
 
@@ -576,14 +568,8 @@ def format_type_cast(node, indent=0):
         'location': node['location'],
     }
 
-
-    if (str(node['typeName']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[typeName] %s' % format_node(node['typeName']), 1)
-
-    if (str(node['arg']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[arg] %s' % format_node(node['arg']), 1)
+    retval += format_optional_node_field(node, 'typeName')
+    retval += format_optional_node_field(node, 'arg')
 
     return add_indent(retval, indent)
 
@@ -598,9 +584,7 @@ def format_def_elem(node, indent=0):
         'defaction': node['defaction'],
     }
 
-    if (str(node['arg']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[arg] %s' % format_node(node['arg']), 1)
+    retval += format_optional_node_field(node, 'arg')
 
     return add_indent(retval, indent)
 
@@ -617,17 +601,9 @@ def format_type_name(node, indent=0):
         'location': node['location'],
     }
 
-    if (str(node['names']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[names] %s' % format_node(node['names']), 1)
-
-    if (str(node['typmods']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[typmods] %s' % format_node(node['typmods']), 1)
-
-    if (str(node['arrayBounds']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[arrayBounds] %s' % format_node(node['arrayBounds']), 1)
+    retval += format_optional_node_field(node, 'names')
+    retval += format_optional_node_field(node, 'typmods')
+    retval += format_optional_node_field(node, 'arrayBounds')
 
     return add_indent(retval, indent)
 
@@ -1202,7 +1178,7 @@ def format_planned_stmt(plan, indent=0):
     return add_indent(retval, indent)
 
 def format_create_stmt(node, indent=0):
-    retval = 'CreateStmt [parentOidCount=%(parentOidCount)s oncommit=%(oncommit)s tablespacename=%(tablespacename)s if_not_exists=%(if_not_exists)s relKind=%(relKind)s\n            relStorage=%(relStorage)s is_part_child=%(is_part_child)s is_add_part=%(is_add_part)s is_split_part=%(is_split_part)s ownerid=%(ownerid)s buildAoBlkdir=%(buildAoBlkdir)s]\n' % {
+    retval = 'CreateStmt [parentOidCount=%(parentOidCount)s oncommit=%(oncommit)s tablespacename=%(tablespacename)s if_not_exists=%(if_not_exists)s relKind=%(relKind)s\n            relStorage=%(relStorage)s is_part_child=%(is_part_child)s is_add_part=%(is_add_part)s is_split_part=%(is_split_part)s ownerid=%(ownerid)s buildAoBlkdir=%(buildAoBlkdir)s]' % {
         'parentOidCount': node['parentOidCount'],
         'oncommit': node['oncommit'],
         'tablespacename': node['tablespacename'],
@@ -1217,32 +1193,19 @@ def format_create_stmt(node, indent=0):
         'buildAoBlkdir': (int(node['buildAoBlkdir']) == 1),
         }
 
-    retval += add_indent('[relation] %s' % format_node(node['relation'], 0), 1)
+    retval += add_indent('[relation] %s' % format_node(node['relation'], 0), 1, True)
 
-    retval += '\n'
-    retval += add_indent('[tableElts] %s' % format_node_list(node['tableElts'], 0, True), 1)
+    retval += add_indent('[tableElts] %s' % format_node_list(node['tableElts'], 0, True), 1, True)
 
     if (str(node['inhOids']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[inhOids] %s' % format_oid_list(node['inhOids']), 1)
-    if (str(node['ofTypename']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[ofTypename] %s' % format_node(node['ofTypename']), 1)
-    if (str(node['constraints']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[constraints] %s' % format_node_list(node['constraints'], 0, True), 1)
-    if (str(node['options']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[options] %s' % format_node_list(node['options']), 1)
-    if (str(node['distributedBy']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[distributedBy] %s' % format_node(node['distributedBy']), 1)
-    if (str(node['partitionBy']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partitionBy] %s' % format_node(node['partitionBy']), 1)
-    if (str(node['postCreate']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[postCreate] %s' % format_node(node['postCreate']) ,1)
+        retval += add_indent('[inhOids] %s' % format_oid_list(node['inhOids']), 1, True)
+
+    retval += format_optional_node_field(node, 'ofTypename')
+    retval += format_optional_node_list(node, 'constraints')
+    retval += format_optional_node_list(node, 'options', newLine=False)
+    retval += format_optional_node_field(node, 'distributedBy')
+    retval += format_optional_node_field(node, 'partitionBy')
+    retval += format_optional_node_field(node, 'postCreate')
 
     return add_indent(retval, indent)
 
@@ -1267,21 +1230,11 @@ def format_index_stmt(node, indent=0):
         'parentConstraintId': node['parentConstraintId'],
         }
 
-    if (str(node['relation']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[relation] %s' % format_node(node['relation']), 1)
-    if (str(node['indexParams']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[indexParams] %s' % format_node_list(node['indexParams'], 0, True), 1)
-    if (str(node['options']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[options] %s' % format_node_list(node['options']), 1)
-    if (str(node['whereClause']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[whereClause] %s' % format_node(node['whereClause']), 1)
-    if (str(node['excludeOpNames']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[excludeOpNames] %s' % format_node_list(node['excludeOpNames'], 0, True), 1)
+    retval += format_optional_node_field(node, 'relation')
+    retval += format_optional_node_list(node, 'indexParams')
+    retval += format_optional_node_list(node, 'options', newLine=False)
+    retval += format_optional_node_field(node, 'whereClause')
+    retval += format_optional_node_list(node, 'excludeOpNames')
 
     return add_indent(retval, indent)
 
@@ -1290,13 +1243,8 @@ def format_alter_table_stmt(node, indent=0):
         'relkind': node['relkind'],
         'missing_ok': (int(node['missing_ok']) == 1),
     }
-
-    if (str(node['relation']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[relation] %s' % format_node(node['relation']) ,1)
-    if (str(node['cmds']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[cmds] %s' % format_node_list(node['cmds'], 0, True), 1)
+    retval += format_optional_node_field(node, 'relation')
+    retval += format_optional_node_list(node, 'cmds')
 
     return add_indent(retval, indent)
 
@@ -1406,30 +1354,17 @@ def format_constraint(node, indent=0):
     retval += ']'
 
 
-    if (str(node['raw_expr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[raw_expr] %s' % format_node(node['raw_expr']), 1)
+    retval += format_optional_node_field(node, 'raw_expr')
+
     if (str(node['cooked_expr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[cooked_expr] %s' % node['cooked_expr'], 1)
-    if (str(node['keys']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[keys] %s' % format_node_list(node['keys'], 0, True), 1)
-    if (str(node['exclusions']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[exclusions] %s' % format_node_list(node['exclusions'], 0, True), 1)
-    if (str(node['options']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[options] %s' % format_node_list(node['options'], 0, True), 1)
-    if (str(node['where_clause']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[where_clause] %s' % format_node(node['where_clause']), 1)
-    if (str(node['pktable']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[pktable] %s' % format_node(node['pktable']), 1)
-    if (str(node['old_conpfeqop']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[old_conpgeqop] %s' % format_node(node['old_conpgeqop']), 1)
+        retval += add_indent('[cooked_expr] %s' % node['cooked_expr'], 1, True)
+
+    retval += format_optional_node_list(node, 'keys')
+    retval += format_optional_node_list(node, 'exclusions')
+    retval += format_optional_node_list(node, 'options')
+    retval += format_optional_node_field(node, 'where_clause')
+    retval += format_optional_node_field(node, 'pktable')
+    retval += format_optional_node_field(node, 'old_conpfeqop')
 
     return add_indent(retval, indent)
 
@@ -1496,10 +1431,9 @@ def format_op_expr(node, indent=0):
     if node['inputcollid'] != 0:
         retval += ' inputcollid=%s' % node['inputcollid']
 
-    retval += ']\n'
-    retval += """%(clauses)s""" % {
-        'clauses': format_node_list(node['args'], 1, True)
-    }
+    retval += ']'
+
+    retval+= format_optional_node_list(node, 'args', skip_tag=True)
 
     return add_indent(retval, indent)
 
@@ -1518,14 +1452,12 @@ def format_func_expr(node, indent=0):
     if node['inputcollid'] != 0:
         retval += ' inputcollid=%s' % node['inputcollid']
 
-    retval += ' location=%(location)s is_tablefunc=%(is_tablefunc)s]\n' % {
+    retval += ' location=%(location)s is_tablefunc=%(is_tablefunc)s]' % {
         'location': node['location'],
         'is_tablefunc': (int(node['is_tablefunc']) == 1),
     }
 
-    retval += """%(args)s""" % {
-        'args': format_node_list(node['args'], 1, True)
-    }
+    retval += format_optional_node_list(node, 'args', skip_tag=True)
 
     return add_indent(retval, indent)
 
@@ -1539,13 +1471,11 @@ def format_relabel_type(node, indent=0):
     if node['resultcollid'] != 0:
         retval += ' resultcollid=%s' % node['resultcollid']
 
-    retval += ' relabelformat=%(relabelformat)s]\n' % {
+    retval += ' relabelformat=%(relabelformat)s]' % {
         'relabelformat': node['relabelformat'],
     }
 
-    retval += """%(arg)s""" % {
-        'arg': format_node(node['arg'], 1)
-    }
+    retval += format_optional_node_field(node, 'arg', skip_tag=True)
 
     return add_indent(retval, indent)
 
@@ -1560,21 +1490,21 @@ def format_coerce_via_io(node, indent=0):
     if node['resultcollid'] != 0:
         retval += ' resultcollid=%s' % node['resultcollid']
 
-    retval += ']\n'
-    retval += """%(arg)s""" % {
-        'arg': format_node(node['arg'], 1)
-    }
+    retval += ']'
+
+    retval += format_optional_node_field(node, 'arg', skip_tag=True)
 
     return add_indent(retval, indent)
 
 def format_scalar_array_op_expr(node, indent=0):
-    return """ScalarArrayOpExpr [opno=%(opno)s opfuncid=%(opfuncid)s useOr=%(useOr)s]
+    retval = """ScalarArrayOpExpr [opno=%(opno)s opfuncid=%(opfuncid)s useOr=%(useOr)s]
 %(clauses)s""" % {
         'opno': node['opno'],
         'opfuncid': node['opfuncid'],
         'useOr': (int(node['useOr']) == 1),
         'clauses': format_node_list(node['args'], 1, True)
     }
+    return add_indent(retval, indent)
 
 def format_a_expr(node, indent=0):
     retval = "A_Expr [kind=%(kind)s location=%(location)s]" % {
@@ -1582,15 +1512,9 @@ def format_a_expr(node, indent=0):
         'location': node['location'],
         }
 
-    if (str(node['name']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[name] %s' % format_node_list(node['name']) ,1)
-    if (str(node['lexpr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[lexpr] %s' % format_node(node['lexpr']) ,1)
-    if (str(node['rexpr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[rexpr] %s' % format_node(node['rexpr']) ,1)
+    retval += format_optional_node_list(node, 'name', newLine=False)
+    retval += format_optional_node_field(node, 'lexpr')
+    retval += format_optional_node_field(node, 'rexpr')
 
     return add_indent(retval, indent)
 
@@ -1620,9 +1544,7 @@ def format_coalesce_expr(node, indent=0):
         'location': node['location'],
         }
 
-    if (str(node['args']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[args] %s' % format_node_list(node['args'], 0, True), 1)
+    retval += format_optional_node_list(node, 'args')
 
     return add_indent(retval, indent)
 
@@ -1638,20 +1560,15 @@ def format_case_when(node, indent=0):
 
 def format_bool_expr(node, indent=0):
 
-    return """BoolExpr [op=%(op)s]
-%(clauses)s""" % {
-        'op': node['boolop'],
-        'clauses': format_node_list(node['args'], 1, True)
-    }
+    retval = 'BoolExpr [op=%s]' % node['boolop']
+    retval += format_optional_node_list(node, 'args', skip_tag=True)
+
+    return add_indent(retval, indent)
 
 def format_from_expr(node, indent=0):
     retval = 'FromExpr'
-    if (str(node['fromlist']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[fromlist] %s' % format_node_list(node['fromlist'], 0, True), 1)
-    if (str(node['quals']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[quals] %s' % format_node(node['quals']) ,1)
+    retval += format_optional_node_list(node, 'fromlist')
+    retval += format_optional_node_field(node, 'quals')
 
     return add_indent(retval, indent)
 
@@ -1661,17 +1578,9 @@ def format_sublink(node, indent=0):
         'location': (int(node['location']) == 1),
     }
 
-    if (str(node['testexpr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[testexpr] %s' % format_node(node['testexpr']) ,1)
-
-    if (str(node['operName']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[operName] %s' % format_node_list(node['operName'], 0, True), 1)
-
-    if (str(node['subselect']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[subselect]\n%s' % format_node(node['subselect']) ,1)
+    retval += format_optional_node_field(node, 'testexpr')
+    retval += format_optional_node_list(node, 'operName')
+    retval += format_optional_node_field(node, 'subselect')
 
     return add_indent(retval, indent)
 
@@ -1681,21 +1590,10 @@ def format_join_expr(node, indent=0):
         'isNatural': (int(node['isNatural']) == 1),
     }
 
-    if (str(node['larg']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[larg] %s' % format_node(node['larg']) ,1)
-
-    if (str(node['rarg']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[rarg] %s' % format_node(node['rarg']) ,1)
-
-    if (str(node['usingClause']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[usingClause] %s' % format_node_list(node['usingClause'], 0, True), 1)
-
-    if (str(node['quals']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[quals] %s' % format_node(node['quals']) ,1)
+    retval += format_optional_node_field(node, 'larg')
+    retval += format_optional_node_field(node, 'rarg')
+    retval += format_optional_node_list(node, 'usingClause')
+    retval += format_optional_node_field(node, 'quals')
 
     return add_indent(retval, indent)
 
@@ -1727,9 +1625,7 @@ def format_sort_group_clause(node, indent=0):
 def format_table_like_clause(node):
     retval = "TableLikeClause [options=%08x]" % int(node['options'])
 
-    if (str(node['relation']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[relation] %s' % format_node(node['relation']), 1)
+    retval += format_optional_node_field(node, 'relation')
 
     return retval
 
@@ -1767,7 +1663,7 @@ def format_var(node, indent=0):
 
     return add_indent(retval, indent)
 
-def format_const(node):
+def format_const(node, indent=0):
     retval = "Const (consttype=%s" % node['consttype']
     if (str(node['consttypmod']) != '0x0'):
         retval += " consttypmod=%s" % node['consttypmod']
@@ -1791,7 +1687,8 @@ def format_const(node):
             'constbyval': (int(node['constbyval']) == 1) }
 
     retval += ')'
-    return retval
+
+    return add_indent(retval, indent)
 
 def format_aggref(node, indent=0):
     retval = '''Aggref (aggfnoid=%(fnoid)s aggtype=%(aggtype)s''' % {
