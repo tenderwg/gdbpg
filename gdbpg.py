@@ -910,19 +910,16 @@ def format_node(node, indent=0):
         retval = format_target_entry(node)
 
     elif is_a(node, 'SortGroupClause'):
-
         node = cast(node, 'SortGroupClause')
 
         retval = format_sort_group_clause(node)
 
     elif is_a(node, 'TableLikeClause'):
-
         node = cast(node, 'TableLikeClause')
 
         retval = format_table_like_clause(node)
 
     elif is_a(node, 'Var'):
-
         node = cast(node, 'Var')
 
         retval = format_var(node)
@@ -963,304 +960,255 @@ def format_node(node, indent=0):
         retval = format_case_when(node)
 
     elif is_a(node, 'RangeTblRef'):
-
         node = cast(node, 'RangeTblRef')
 
         retval = 'RangeTblRef (rtindex=%d)' % (int(node['rtindex']), )
 
     elif is_a(node, 'RelOptInfo'):
-
         node = cast(node, 'RelOptInfo')
 
         retval = format_reloptinfo(node)
 
     elif is_a(node, 'RangeTblEntry'):
-
         node = cast(node, 'RangeTblEntry')
 
         retval = format_rte(node)
 
     elif is_a(node, 'GenericExprState'):
-
         node = cast(node, 'GenericExprState')
+
         retval = format_generic_expr_state(node)
 
     elif is_a(node, 'PlannerInfo'):
-
         retval = format_planner_info(node)
 
     elif is_a(node, 'PlannedStmt'):
-
         node = cast(node, 'PlannedStmt')
 
         retval = format_planned_stmt(node)
 
     elif is_a(node, 'CreateStmt'):
-
         node = cast(node, 'CreateStmt')
 
         retval = format_create_stmt(node)
 
     elif is_a(node, 'IndexStmt'):
-
         node = cast(node, 'IndexStmt')
 
         retval = format_index_stmt(node)
 
     elif is_a(node, 'AlterTableStmt'):
-
         node = cast(node, 'AlterTableStmt')
 
         retval = format_alter_table_stmt(node)
 
     elif is_a(node, 'RangeVar'):
-
         node = cast(node, 'RangeVar')
 
         retval = format_range_var(node)
 
     elif is_a(node, 'List'):
-
         node = cast(node, 'List')
 
         retval = format_node_list(node, 0, True)
 
     elif is_a(node, 'Plan'):
-
         retval = format_plan_tree(node)
 
     elif is_a(node, 'RestrictInfo'):
-
         node = cast(node, 'RestrictInfo')
 
         retval = format_restrict_info(node)
 
     elif is_a(node, 'OpExpr'):
-
         node = cast(node, 'OpExpr')
 
         retval = format_op_expr(node)
 
     elif is_a(node, 'NullIfExpr'):
-
         node = cast(node, 'OpExpr')
 
         retval = format_op_expr(node)
 
     elif is_a(node, 'DistinctExpr'):
-
         node = cast(node, 'OpExpr')
 
         retval = format_op_expr(node)
 
     elif is_a(node, 'FuncExpr'):
-
         node = cast(node, 'FuncExpr')
 
         retval = format_func_expr(node)
 
     elif is_a(node, 'RelabelType'):
-
         node = cast(node, 'RelabelType')
 
         retval = format_relabel_type(node)
 
     elif is_a(node, 'CoerceViaIO'):
-
         node = cast(node, 'CoerceViaIO')
 
         retval = format_coerce_via_io(node)
 
     elif is_a(node, 'ScalarArrayOpExpr'):
-
         node = cast(node, 'ScalarArrayOpExpr')
 
         retval = format_scalar_array_op_expr(node)
 
     elif is_a(node, 'BoolExpr'):
-
         node = cast(node, 'BoolExpr')
-
-        #print(node)
 
         retval = format_bool_expr(node)
 
     elif is_a(node, 'SubLink'):
-
         node = cast(node, 'SubLink')
 
         retval = format_sublink(node)
 
     elif is_a(node, 'FromExpr'):
-
         node = cast(node, 'FromExpr')
 
         retval = format_from_expr(node)
 
     elif is_a(node, 'JoinExpr'):
-
         node = cast(node, 'JoinExpr')
 
         retval = format_join_expr(node)
 
     elif is_a(node, 'AlterTableCmd'):
-
         node = cast(node, 'AlterTableCmd')
 
         retval = format_alter_table_cmd(node)
 
     elif is_a(node, 'AlterPartitionCmd'):
-
         node = cast(node, 'AlterPartitionCmd')
 
         retval = format_alter_partition_cmd(node)
 
     elif is_a(node, 'PartitionCmd'):
-
         node = cast(node, 'PartitionCmd')
 
         retval = format_partition_cmd(node)
 
     elif is_a(node, 'AlterPartitionId'):
-
         node = cast(node, 'AlterPartitionId')
 
         retval = format_alter_partition_id(node)
 
     elif is_a(node, 'PgPartRule'):
-
         node = cast(node, 'PgPartRule')
 
         retval = format_pg_part_rule(node)
 
     elif is_a(node, 'PartitionNode'):
-
         node = cast(node, 'PartitionNode')
 
         retval = format_partition_node(node)
 
     elif is_a(node, 'PartitionElem'):
-
         node = cast(node, 'PartitionElem')
 
         retval = format_partition_elem(node)
 
     elif is_a(node, 'IndexElem'):
-
         node = cast(node, 'IndexElem')
 
         retval = format_index_elem(node)
 
     elif is_a(node, 'Path'):
-
         node = cast(node, 'Path')
 
         retval = format_path(node)
 
     elif is_a(node, 'PartitionBoundSpec'):
-
         node = cast(node, 'PartitionBoundSpec')
 
         retval = format_partition_bound_spec(node)
 
     elif is_a(node, 'PartitionValuesSpec'):
-
         node = cast(node, 'PartitionValuesSpec')
 
         retval = format_partition_values_spec(node)
 
     elif is_a(node, 'PartitionRangeItem'):
-
         node = cast(node, 'PartitionRangeItem')
 
         retval = format_partition_range_item(node)
 
     elif is_a(node, 'Partition'):
-
         node = cast(node, 'Partition')
 
         retval = format_partition(node)
 
     elif is_a(node, 'PartitionBy'):
-
         node = cast(node, 'PartitionBy')
 
         retval = format_partition_by(node)
 
     elif is_a(node, 'PartitionSpec'):
-
         node = cast(node, 'PartitionSpec')
 
         retval = format_partition_spec(node)
 
     elif is_a(node, 'Constraint'):
-
         node = cast(node, 'Constraint')
 
         retval = format_constraint(node)
 
     elif is_a(node, 'DefElem'):
-
         node = cast(node, 'DefElem')
 
         retval = format_def_elem(node)
 
     elif is_a(node, 'TypeName'):
-
         node = cast(node, 'TypeName')
 
         retval = format_type_name(node)
 
     elif is_a(node, 'Param'):
-
         node = cast(node, 'Param')
 
         retval = format_param(node)
 
     elif is_a(node, 'String'):
-
         node = cast(node, 'Value')
 
         retval = 'String [%s]' % getchars(node['val']['str'])
 
     elif is_a(node, 'SubPlan'):
-
         node = cast(node, 'SubPlan')
 
         retval = format_subplan(node)
 
     elif is_a(node, 'PartitionRule'):
-
         node = cast(node, 'PartitionRule')
 
         retval = format_partition_rule(node)
 
     elif is_a(node, 'TypeCast'):
-
         node = cast(node, 'TypeCast')
 
         retval = format_type_cast(node)
 
     elif is_a(node, 'OidList'):
-
         retval = 'OidList: %s' % format_oid_list(node)
 
     elif is_a(node, 'IntList'):
-
         retval = 'IntList: %s' % format_oid_list(node)
 
     elif is_a(node, 'Query'):
- 
         node = cast(node, 'Query')
 
         retval = format_query_info(node)
 
     elif is_pathnode(node):
         node = cast(node, 'Path')
+
         retval = format_path(node)
 
     elif is_plannode(node):
         node = cast(node, 'Plan')
+
         retval = format_plan_tree(node)
 
 
