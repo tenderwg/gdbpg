@@ -291,43 +291,32 @@ def format_restrict_info(node, indent=0):
     return add_indent(retval, indent)
 
 def format_query_info(node, indent=0):
-    'formats a query node with custom indentation'
-    if (str(node) == '0x0'):
-        return add_indent('(NULL)', indent)
-
-    retval = '''          type: %(type)s
-  command type: %(commandType)s
-  query source: %(querySource)s
-   can set tag: %(canSetTag)s
-   range table:
-%(rtable)s
-      jointree:
-%(jointree)s
-    targetList:
-%(targetList)s
- returningList:
-%(returningList)s
-   groupClause:
-%(groupClause)s
-    havingQual:
-%(havingQual)s
-    sortClause:
-%(sortClause)s
-constraintDeps: %(constraintDeps)s
-''' % {
-        'type': format_type(node['type']),
-        'commandType': format_type(node['commandType']),
-        'querySource': format_type(node['querySource']),
+    retval = 'Query [commandType=%(commandType)s querySource=%(querySource)s queryId=%(queryId)s canSetTag=%(canSetTag)s resultRelation=%(resultRelation)s]' % {
+        'commandType': node['commandType'],
+        'querySource': node['querySource'],
+        'queryId': node['queryId'],
         'canSetTag': (int(node['canSetTag']) == 1),
-        'rtable': format_node_list(node['rtable'], 1, True),
-        'jointree': format_node(node['jointree']),
-        'targetList': format_node(node['targetList']),
-        'returningList': format_node(node['returningList']),
-        'groupClause': format_node_list(node['groupClause'], 0, True),
-        'havingQual': format_node(node['havingQual']),
-        'sortClause': format_node_list(node['sortClause'], 0, True),
-        'constraintDeps': format_node(node['constraintDeps']),
-      }
+        'resultRelation': node['resultRelation'],
+    }
+    retval += format_optional_node_field(node, 'utilityStmt')
+    retval += format_optional_node_list(node, 'cteList')
+    retval += format_optional_node_list(node, 'rtable')
+    retval += format_optional_node_field(node, 'jointree')
+    retval += format_optional_node_list(node, 'targetList')
+    retval += format_optional_node_list(node, 'withCheckOptions')
+    retval += format_optional_node_list(node, 'returningList')
+    retval += format_optional_node_list(node, 'groupClause')
+    retval += format_optional_node_field(node, 'havingQual')
+    retval += format_optional_node_list(node, 'windowClause')
+    retval += format_optional_node_list(node, 'distinctClause')
+    retval += format_optional_node_list(node, 'sortClause')
+    retval += format_optional_node_list(node, 'scatterClause')
+    retval += format_optional_node_field(node, 'limitOffset')
+    retval += format_optional_node_field(node, 'limitCount')
+    retval += format_optional_node_list(node, 'rowMarks')
+    retval += format_optional_node_field(node, 'setOperations')
+    retval += format_optional_node_list(node, 'constraintDeps')
+    retval += format_optional_node_field(node, 'intoPolicy')
 
     return add_indent(retval, 0)
 
