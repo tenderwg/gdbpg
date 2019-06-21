@@ -747,6 +747,37 @@ def format_subplan(node, indent=0):
 
     return add_indent(retval, indent)
 
+
+def format_partition_rule(node, indent=0):
+    retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s parruleord=%(parruleord)s partemplatespaceId=%(partemplatespaceId)s)''' % {
+        'parruleid': node['parruleid'],
+        'paroid': node['paroid'],
+        'parchildrelid': node['parchildrelid'],
+        'parparentoid': node['parparentoid'],
+        'parisdefault': (int(node['parisdefault']) == 1),
+        'parname': node['parname'],
+        'parruleord': node['parruleord'],
+        'partemplatespaceId': node['partemplatespaceId'],
+    }
+    if (str(node['parrangestart']) != '0x0'):
+        retval += '\n\t[parrangestart parrangestartincl=%(parrangestartincl)s] %(parrangestart)s' % {
+            'parrangestart': format_node_list(cast(node['parrangestart'], 'List'), 1, True),
+            'parrangestartincl': (int(node['parrangestartincl']) == 1),
+        }
+
+    if (str(node['parrangeend']) != '0x0'):
+        retval += '\n\t[parrangeend parrangeendincl=%(parrangeendincl)s] %(parrangeend)s' % {
+            'parrangeend': format_node_list(cast(node['parrangeend'], 'List'), 0, True),
+            'parrangeendincl': (int(node['parrangeendincl']) == 1),
+        }
+
+    retval += format_optional_node_list(node, 'parrangeevery')
+    retval += format_optional_node_list(node, 'parlistvalues')
+    retval += format_optional_node_list(node, 'parreloptions')
+    retval += format_optional_node_field(node, 'children')
+
+    return add_indent(retval, indent)
+
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
 
@@ -1202,46 +1233,7 @@ def format_node(node, indent=0):
 
         node = cast(node, 'PartitionRule')
 
-        retval = '''PartitionRule (parruleid=%(parruleid)s paroid=%(paroid)s parchildrelid=%(parchildrelid)s parparentoid=%(parparentoid)s parisdefault=%(parisdefault)s parname=%(parname)s parruleord=%(parruleord)s partemplatespaceId=%(partemplatespaceId)s)''' % {
-            'parruleid': node['parruleid'],
-            'paroid': node['paroid'],
-            'parchildrelid': node['parchildrelid'],
-            'parparentoid': node['parparentoid'],
-            'parisdefault': (int(node['parisdefault']) == 1),
-            'parname': node['parname'],
-            'parruleord': node['parruleord'],
-            'partemplatespaceId': node['partemplatespaceId'],
-        }
-        if (str(node['parrangestart']) != '0x0'):
-            retval += '\n\t[parrangestart parrangestartincl=%(parrangestartincl)s] %(parrangestart)s' % {
-                'parrangestart': format_node_list(cast(node['parrangestart'], 'List'), 1, True),
-                'parrangestartincl': (int(node['parrangestartincl']) == 1),
-            }
-
-        if (str(node['parrangeend']) != '0x0'):
-            retval += '\n\t[parrangeend parrangeendincl=%(parrangeendincl)s] %(parrangeend)s' % {
-                'parrangeend': format_node_list(cast(node['parrangeend'], 'List'), 0, True),
-                'parrangeendincl': (int(node['parrangeendincl']) == 1),
-            }
-
-        if (str(node['parrangeevery']) != '0x0'):
-            retval += '\n\t[parrangeevery] %(parrangeevery)s' % {
-                'parrangeevery': format_node_list(cast(node['parrangeevery'], 'List'), 0, True),
-            }
-
-        if (str(node['parlistvalues']) != '0x0'):
-            retval += '\n\t[parlistvalues] %(parlistvalues)s' % {
-                'parlistvalues': format_node_list(node['parlistvalues']),
-            }
-
-        if (str(node['parreloptions']) != '0x0'):
-                retval += '\n\t[parreloptions] %(parreloptions)s' % {
-                'parreloptions': format_node_list(node['parlistvalues']),
-            }
-
-        if (str(node['children']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[children] %s' % format_node(node['children']),1)
+        retval = format_partition_rule(node)
 
     elif is_a(node, 'TypeCast'):
 
