@@ -27,7 +27,7 @@ def format_plan_tree(tree, indent=0):
     node_extra = ''
     if is_a(tree, 'Scan') or is_a(tree, 'SeqScan') or is_a(tree, 'TableScan') or is_a(tree, 'IndexScan') or is_a(tree, 'FunctionScan'):
         scan = cast(tree, 'Scan')
-        node_extra += '   <scanrelid=%(scanrelid)s' % {
+        node_extra += '<scanrelid=%(scanrelid)s' % {
             'scanrelid': scan['scanrelid'],
         }
 
@@ -46,14 +46,14 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
         join = cast(tree, 'Join')
-        node_extra += '   <jointype=%(jointype)s prefetch_inner=%(prefetch_inner)s>\n' % {
+        node_extra += '<jointype=%(jointype)s prefetch_inner=%(prefetch_inner)s>' % {
             'jointype': join['jointype'],
             'prefetch_inner': (int(join['prefetch_inner']) == 1),
         }
 
     if is_a(tree, 'Hash'):
         hash = cast(tree, 'Hash')
-        node_extra += '   <rescannable=%(rescannable)s skewTable=%(skewTable)s skewColumn=%(skewColumn)s skewInherit=%(skewInherit)s skewColType=%(skewColType)s skewColTypmod=%(skewColTypmod)s>\n' %{
+        node_extra += '<rescannable=%(rescannable)s skewTable=%(skewTable)s skewColumn=%(skewColumn)s skewInherit=%(skewInherit)s skewColType=%(skewColType)s skewColTypmod=%(skewColTypmod)s>' %{
             'rescannable': (int(hash['rescannable']) == 1),
             'skewTable': hash['skewTable'],
             'skewColumn': hash['skewColumn'],
@@ -64,7 +64,7 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'Sort'):
         sort = cast(tree, 'Sort')
-        node_extra += '   <numCols=%(numCols)s noduplicates=%(noduplicates)s share_type=%(share_type)s share_id=%(share_id)s driver_slice=%(driver_slice)s nsharer=%(nsharer)s nsharer_xslice=%(nsharer_xslice)s>\n' % {
+        node_extra += '<numCols=%(numCols)s noduplicates=%(noduplicates)s share_type=%(share_type)s share_id=%(share_id)s driver_slice=%(driver_slice)s nsharer=%(nsharer)s nsharer_xslice=%(nsharer_xslice)s>' % {
             'numCols': sort['numCols'],
             'noduplicates': (int(sort['noduplicates']) == 1),
             'share_type': sort['share_type'],
@@ -76,7 +76,7 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'Agg'):
         agg = cast(tree, 'Agg')
-        node_extra += '   <aggstrategy=%(aggstrategy)s numCols=%(numCols)s combineStates=%(combineStates)s finalizeAggs=%(finalizeAggs)s numGroups=%(numGroups)s transSpace=%(transSpace)s numNullCols=%(numNullCols)s inputGrouping=%(inputGrouping)s grouping=%(grouping)s inputHasGrouping=%(inputHasGrouping)s rollupGSTimes=%(rollupGSTimes)s lastAgg=%(lastAgg)s streaming=%(streaming)s aggParams=%(aggParams)s>\n' % {
+        node_extra += '<aggstrategy=%(aggstrategy)s numCols=%(numCols)s combineStates=%(combineStates)s finalizeAggs=%(finalizeAggs)s numGroups=%(numGroups)s transSpace=%(transSpace)s numNullCols=%(numNullCols)s inputGrouping=%(inputGrouping)s grouping=%(grouping)s inputHasGrouping=%(inputHasGrouping)s rollupGSTimes=%(rollupGSTimes)s lastAgg=%(lastAgg)s streaming=%(streaming)s aggParams=%(aggParams)s>' % {
             'aggstrategy': agg['aggstrategy'],
             'numCols': agg['numCols'],
             'combineStates': (int(agg['combineStates']) == 1),
@@ -95,7 +95,7 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'SetOp'):
         setop = cast(tree, 'SetOp')
-        node_extra += '   <cmd=%(cmd)s strategy=%(strategy)s numCols=%(numCols)s flagColIdx=%(flagColIdx)s firstFlag=%(firstFlag)s numGroups=%(numGroups)s>\n' % {
+        node_extra += '<cmd=%(cmd)s strategy=%(strategy)s numCols=%(numCols)s flagColIdx=%(flagColIdx)s firstFlag=%(firstFlag)s numGroups=%(numGroups)s>' % {
             'cmd': setop['cmd'],
             'strategy': setop['strategy'],
             'numCols': setop['numCols'],
@@ -106,7 +106,7 @@ def format_plan_tree(tree, indent=0):
 
     if is_a(tree, 'Motion'):
         motion= cast(tree, 'Motion')
-        node_extra += '   <motionType=%(motionType)s sendSorted=%(sendSorted)s motionID=%(motionID)s segidColIdx=%(segidColIdx)s nullsFirst=%(nullsFirst)s>\n' % {
+        node_extra += '<motionType=%(motionType)s sendSorted=%(sendSorted)s motionID=%(motionID)s segidColIdx=%(segidColIdx)s nullsFirst=%(nullsFirst)s>' % {
             'motionType': motion['motionType'],
             'sendSorted': (int(motion['sendSorted']) == 1),
             'motionID': motion['motionID'],
@@ -116,7 +116,7 @@ def format_plan_tree(tree, indent=0):
 
 
 
-    retval = '''\n-> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s) id=%(plan_node_id)s\n''' % {
+    retval = '''\n-> %(type)s (cost=%(startup).3f...%(total).3f rows=%(rows)s width=%(width)s) id=%(plan_node_id)s''' % {
         'type': format_type(tree['type']),    # type of the Node
         'node_extra': node_extra,
         'startup': float(tree['startup_cost']),    # startup cost
@@ -126,34 +126,17 @@ def format_plan_tree(tree, indent=0):
         'plan_node_id': str(tree['plan_node_id']),
     }
 
-    retval += node_extra
+    if node_extra != '':
+        retval += add_indent(node_extra, 1, True)
 
-    retval += '''\ttarget list:
-%(target)s''' % {
-        # format target list
-        'target': format_node_list(tree['targetlist'], 2, True)
-        }
+    retval += format_optional_node_list(tree, 'targetlist')
 
     if is_a(tree, 'IndexScan'):
-        indexscan = cast(tree, 'IndexScan')
-        if str(indexscan['indexqual']) != '0x0':
-            retval+='\n\tindexqual:\n%(indexqual)s' % {
-                'indexqual': format_node_list(indexscan['indexqual'], 2, True)
-            }
+        retval += format_optional_node_list(tree, 'indexqual', 'IndexScan')
 
-    if (str(tree['initPlan']) != '0x0'):
-        retval +='''
-\tinitPlan:
-%(initPlan)s''' % {
-            'initPlan': format_node_list(tree['initPlan'], 2, True)
-        }
-
-    if (str(tree['qual']) != '0x0'):
-        retval +='''
-\tqual:
-%(qual)s''' % {
-            'qual': format_node_list(tree['qual'], 2, True)
-        }
+    # These are fields can be part of any node
+    retval += format_optional_node_list(tree, 'initPlan')
+    retval += format_optional_node_list(tree, 'qual')
 
     if is_a(tree, 'Result'):
         result = cast(tree, 'Result')
@@ -164,60 +147,41 @@ def format_plan_tree(tree, indent=0):
             else:
                 resconstantqual = result['resconstantqual']
 
-            retval+='''
-\tresconstantqual:
-%(resconstantqual)s''' % {
-                'resconstantqual': format_node(resconstantqual, 2)
-            }
+            retval += add_indent('[resconstantqual]', 1, True)
+            retval += '\n'
+            retval += format_node(resconstantqual, 2)
 
     if is_a(tree, 'Motion'):
         motion = cast(tree, 'Motion')
         if str(motion['hashExprs']) != '0x0':
             numcols = int(motion['hashExprs']['length'])
 
-            retval += '\n\thashExprs:'
-            retval += '\n\t\thashFunctionOids: [ '
-            for col in range(0,numcols):
-                retval += '%d ' % motion['hashFuncs'][col]
-            retval +=']'
+            retval += add_indent('[hashExprs]', 1, True)
 
-            retval+='\n%(hashExprs)s' % {
-                'hashExprs': format_node_list(motion['hashExprs'], 2, True)
-            }
+            hashfunctionoids = '[hashFunctionOids] ['
+            for col in range(0,numcols):
+                hashfunctionoids += '%d ' % motion['hashFuncs'][col]
+            hashfunctionoids +=']'
+
+            retval += add_indent(hashfunctionoids, 2, True)
+
+            retval += '\n'
+            retval += format_node_list(motion['hashExprs'], 2, True)
 
 
     if is_a(tree, 'HashJoin') or is_a(tree, 'Join') or is_a(tree, 'NestLoop') or is_a(tree, 'MergeJoin'):
-        join = cast(tree, 'Join')
-        if str(join['joinqual']) != '0x0':
-            retval+='''
-\tjoinqual:
-%(joinqual)s''' % {
-                'joinqual': format_node_list(join['joinqual'], 2, True)
-            }
+        # All join nodes can have this field
+        retval += format_optional_node_list(tree, 'joinqual', 'Join')
+
         if is_a(tree, 'HashJoin'):
-            hashjoin = cast(tree, 'HashJoin')
-
-            if str(hashjoin['hashclauses']) != '0x0':
-                retval += '\n\thashclauses:' \
-
-                retval += '\n%(hashclauses)s' % {
-                    'hashclauses': format_node_list(hashjoin['hashclauses'], 2, True)
-                }
-
-            if str(hashjoin['hashqualclauses']) != '0x0':
-                retval += '\n\thashqualclauses:'
-
-                retval += '\n%(hashqualclauses)s' % {
-                    'hashqualclauses': format_node_list(hashjoin['hashqualclauses'], 2, True)
-                }
-
+            retval += format_optional_node_list(tree, 'hashclauses', 'HashJoin')
+            retval += format_optional_node_list(tree, 'hashqualclauses', 'HashJoin')
 
     if is_a(tree, 'Sort'):
         append = cast(tree, 'Sort')
         numcols = int(append['numCols'])
 
-        retval += '\n\tSort Indexes:\n'
-
+        retval += add_indent('[sort indexes]', 1, True)
 
         index = ''
         for col in range(0,numcols):
@@ -230,14 +194,14 @@ def format_plan_tree(tree, indent=0):
             if col < numcols-1:
                 index += '\n'
 
-        retval += add_indent(index, 2)
+        retval += add_indent(index, 2, True)
 
     if is_a(tree, 'Agg'):
         agg = cast(tree, 'Agg')
         numcols = int(agg['numCols'])
 
         if (numcols >= 1):
-            retval += '\n\tOperators:\n'
+            retval += add_indent('[operators]', 1, True)
 
             index = ''
             for col in range(0,numcols):
@@ -248,14 +212,13 @@ def format_plan_tree(tree, indent=0):
                 if col < numcols-1:
                     index += '\n'
 
-            retval += add_indent(index, 2)
+            retval += add_indent(index, 2, True)
 
     if is_a(tree, 'SetOp'):
         setop = cast(tree, 'SetOp')
         numcols = int(setop['numCols'])
 
-        retval += '\n\tOperators:\n'
-
+        retval += add_indent('[operators]', 1, True)
 
         index = ''
         for col in range(0,numcols):
@@ -266,48 +229,29 @@ def format_plan_tree(tree, indent=0):
             if col < numcols-1:
                 index += '\n'
 
-        retval += add_indent(index, 2)
+        retval += add_indent(index, 2, True)
 
     if is_a(tree, 'FunctionScan'):
-        functionscan = cast(tree, 'FunctionScan')
-        if (str(functionscan['functions']) != '0x0'):
-            retval += '\n'
-            retval += add_indent('[functions] %s' % format_node_list(functionscan['functions'], 0, True), 1)
+        retval += format_optional_node_list(tree, 'functions', 'FunctionScan')
 
+    # format Append subplans
     if is_a(tree, 'Append'):
         append = cast(tree, 'Append')
-        retval += '''
-\t%(appendplans)s''' % {
-        # format Append subplans
-        'appendplans': format_appendplan_list(append['appendplans'], 0)
-        }
+        retval += '\n\t%s' % format_appendplan_list(append['appendplans'], 0)
     elif is_a(tree, 'SubqueryScan'):
         subquery = cast(tree, 'SubqueryScan')
-        retval += '''
-\t%(subplan)s''' % {
-        'subplan': format_plan_tree(subquery['subplan'], 0)
-        }
+        retval += '\n\t%s' % format_plan_tree(subquery['subplan'], 0)
     elif is_a(tree, 'ModifyTable'):
         modifytable= cast(tree, 'ModifyTable')
-        retval += '''
-\t%(plans)s''' % {
-        # format Append subplans
-        'plans': format_appendplan_list(modifytable['plans'], 0)
-        }
+        retval += '\n\t%(plans)s' % format_appendplan_list(modifytable['plans'], 0)
     else:
-    # format all the important fields (similarly to EXPLAIN)
-        retval +='''
-\t%(left)s
-\t%(right)s''' % {
-
-        # left subtree
-        'left': format_plan_tree(tree['lefttree'], 0),
-
-        # right subtree
-        'right': format_plan_tree(tree['righttree'], 0)
-        }
+        # format all the important fields (similarly to EXPLAIN)
+        retval += '\n\t%s' % format_plan_tree(tree['lefttree'], 0)
+        retval += '\n\t%s' % format_plan_tree(tree['righttree'], 0)
 
     return add_indent(retval, indent + 1)
+
+
 
 def format_optional_node_list(node, fieldname, cast_to=None, skip_tag=False, newLine=True, indent=1):
     if cast_to != None:
