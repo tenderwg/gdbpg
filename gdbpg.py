@@ -2053,9 +2053,13 @@ def cast(node, type_name):
     return node.cast(t.pointer())
 
 
-def add_indent(val, indent):
+def add_indent(val, indent, add_newline=False):
+    retval = ''
+    if add_newline == True:
+        retval += '\n'
 
-    return "\n".join([(("\t" * indent) + l) for l in val.split("\n")])
+    retval += "\n".join([(("\t" * indent) + l) for l in val.split("\n")])
+    return retval
 
 def getchars(arg):
     if (str(arg) == '0x0'):
