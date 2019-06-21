@@ -366,17 +366,9 @@ def format_alter_partition_cmd(node, indent=0):
         'location': node['location']
     }
 
-    if (str(node['partid']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partid] %s' % format_node(node['partid']), 1)
-
-    if (str(node['arg1']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[arg1] %s' % format_node(node['arg1']), 1)
-
-    if (str(node['arg2']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[arg2] %s' % format_node(node['arg2']), 1)
+    retval += format_optional_node_field(node, 'partid')
+    retval += format_optional_node_field(node, 'arg1')
+    retval += format_optional_node_field(node, 'arg2')
 
     return add_indent(retval, indent)
 
@@ -384,13 +376,8 @@ def format_partition_cmd(node, indent=0):
     retval = 'PartitionCmd' % {
     }
 
-    if (str(node['name']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[name] %s' % format_node(node['name']), 1)
-
-    if (str(node['bound']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[bound] %s' % format_node(node['bound']), 1)
+    retval += format_optional_node_field(node, 'name')
+    retval += format_optional_node_field(node, 'bound')
 
     return add_indent(retval, indent)
 
@@ -426,13 +413,8 @@ def format_pg_part_rule(node, indent=0):
         'relname': node['relname']
     }
 
-    if (str(node['pNode']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[pNode] %s' % format_node(node['pNode']), 1)
-
-    if (str(node['topRule']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[topRule] %s' % format_node(node['topRule']), 1)
+    retval += format_optional_node_field(node, 'pNode')
+    retval += format_optional_node_field(node, 'topRule')
 
     return add_indent(retval, indent)
 
@@ -443,17 +425,9 @@ def format_partition_node(node, indent=0):
     retval = 'PartitionNode'
 
 
-    if (str(node['part']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[part] %s' % format_node(node['part']), 1)
-
-    if (str(node['default_part']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[default_part] %s' % format_node(node['default_part']), 1)
-
-    if (str(node['rules']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[rules] %s' % format_node_list(node['rules'], 0, True), 1)
+    retval += format_optional_node_field(node, 'part')
+    retval += format_optional_node_field(node, 'default_part')
+    retval += format_optional_node_list(node, 'rules')
 
     return add_indent(retval, indent)
 
@@ -470,22 +444,10 @@ def format_partition_elem(node, indent=0):
         'location': node['location']
     }
 
-    if (str(node['boundSpec']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[boundSpec] %s' % format_node(node['boundSpec']), 1)
-
-    if (str(node['subSpec']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[subSpec] %s' % format_node(node['subSpec']), 1)
-
-    if (str(node['storeAttr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[storeAttr] %s' % format_node(node['storeAttr']), 1)
-
-    if (str(node['colencs']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[colencs] %s' % format_node_list(node['colencs'], 0, True), 1)
-
+    retval += format_optional_node_field(node, 'boundSpec')
+    retval += format_optional_node_field(node, 'subSpec')
+    retval += format_optional_node_field(node, 'storeAttr')
+    retval += format_optional_node_list(node, 'colencs')
 
     return add_indent(retval, indent)
 
@@ -500,17 +462,9 @@ def format_index_elem(node, indent=0):
         'nulls_ordering': node['nulls_ordering'],
     }
 
-    if (str(node['expr']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[expr] %s' % format_node(node['expr']), 1)
-
-    if (str(node['collation']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[collation] %s' % format_node_list(node['collation']), 1)
-
-    if (str(node['opclass']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[opclass] %s' % format_node(node['opclass']), 1)
+    retval += format_optional_node_field(node, 'expr')
+    retval += format_optional_node_list(node, 'collation')
+    retval += format_optional_node_field(node, 'opclass')
 
     return add_indent(retval, indent)
 
@@ -566,22 +520,11 @@ def format_partition_bound_spec(node, indent=0):
         'pWithTnameStr': node['pWithTnameStr'],
         'location': node['location'],
     }
-    if (str(node['partStart']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partStart] %s' % format_node(node['partStart']), 1)
 
-    if (str(node['partEnd']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partEnd] %s' % format_node(node['partEnd']), 1)
-
-    if (str(node['partEvery']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partEvery] %s' % format_node(node['partEvery']), 1)
-
-    if (str(node['everyGenList']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[everyGenList] %s' % format_node_list(node['everyGenList'], 0, True), 1)
-
+    retval += format_optional_node_field(node, 'partStart')
+    retval += format_optional_node_field(node, 'partEnd')
+    retval += format_optional_node_field(node, 'partEvery')
+    retval += format_optional_node_list(node, 'everyGenList', newLine=False)
 
     return add_indent(retval, indent)
 
@@ -589,10 +532,8 @@ def format_partition_values_spec(node, indent=0):
     retval = 'PartitionValuesSpec [location=%(location)s]' % {
         'location': node['location'],
     }
-    if (str(node['partValues']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partValues] %s' % format_node_list(node['partValues'], 0, True), 1)
 
+    retval += format_optional_node_list(node, 'partValues')
 
     return add_indent(retval, indent)
 
@@ -606,10 +547,7 @@ def format_partition_range_item(node, indent=0):
         'location': node['location'],
     }
 
-    if (str(node['partRangeVal']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partRangeVal] %s' % format_node_list(node['partRangeVal'], 0, True), 1)
-
+    retval += format_optional_node_list(node, 'partRangeVal')
 
     return add_indent(retval, indent)
 
@@ -1390,24 +1328,12 @@ def format_partition_by(node, indent=0):
         'location': node['location'],
     }
 
-    if (str(node['keys']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[keys] %s' % format_node(node['keys']), 1)
-    if (str(node['keyopclass']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[keyopclass] %s' % format_node(node['keyopclass']) ,1)
-    if (str(node['subPart']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[subPart] %s' % format_node(node['subPart']) ,1)
-    if (str(node['partSpec']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partSpec] %s' % format_node(node['partSpec']) ,1)
-    if (str(node['partDefault']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partDefault] %s' % format_node(node['partDefault']) ,1)
-    if (str(node['parentRel']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[parentRel] %s' % format_node(node['parentRel']) ,1)
+    retval += format_optional_node_field(node, 'keys')
+    retval += format_optional_node_field(node, 'keyopclass')
+    retval += format_optional_node_field(node, 'subPart')
+    retval += format_optional_node_field(node, 'partSpec')
+    retval += format_optional_node_field(node, 'partDefault')
+    retval += format_optional_node_field(node, 'parentRel')
 
     return add_indent(retval, indent)
 
@@ -1417,15 +1343,9 @@ def format_partition_spec(node, indent=0):
         'location': node['location'],
     }
 
-    if (str(node['partElem']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[partElem] %s' % format_node_list(node['partElem'], 0, True), 1)
-    if (str(node['enc_clauses']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[enc_clauses] %s' % format_node_list(node['enc_clauses']), 1)
-    if (str(node['subSpec']) != '0x0'):
-        retval += '\n'
-        retval += add_indent('[subSpec] %s' % format_node(node['subSpec']), 1)
+    retval += format_optional_node_list(node, 'partElem')
+    retval += format_optional_node_list(node, 'enc_clauses', newLine=False)
+    retval += format_optional_node_field(node, 'subSpec')
 
     return add_indent(retval, indent)
 
