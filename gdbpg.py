@@ -309,6 +309,32 @@ def format_plan_tree(tree, indent=0):
 
     return add_indent(retval, indent + 1)
 
+def format_optional_node_list(node, fieldname, cast_to=None, skip_tag=False, newLine=True, indent=1):
+    if cast_to != None:
+        node = cast(node, cast_to)
+
+    retval = ''
+    indent_add = 0
+    if str(node[fieldname]) != '0x0':
+        if skip_tag == False:
+            retval += add_indent('[%s]' % fieldname, indent, True)
+            indent_add = 1
+
+        retval += '\n'
+        retval += '%s' % format_node_list(node[fieldname], indent + indent_add, newLine)
+    return retval
+
+def format_optional_node_field(node, fieldname, cast_to=None, skip_tag=False, indent=1):
+    if cast_to != None:
+        node = cast(node, cast_to)
+
+    if str(node[fieldname]) != '0x0':
+        if skip_tag == True:
+            return add_indent('%s' % format_node(node[fieldname]), indent, True)
+        else:
+            return add_indent('[%s] %s' % (fieldname, format_node(node[fieldname])), indent, True)
+    return ''
+
 def format_query_info(node, indent=0):
     'formats a query node with custom indentation'
     if (str(node) == '0x0'):
