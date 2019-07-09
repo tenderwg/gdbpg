@@ -562,6 +562,15 @@ def format_type_cast(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_cdb_process(node, indent=0):
+    retval = 'CdbProcess [listenerAddr=%(listenerAddr)s listenerPort=%(listenerPort)s pid=%(pid)s contentid=%(contentid)s]' % {
+        'listenerAddr': getchars(node['listenerAddr']),
+        'listenerPort': node['listenerPort'],
+        'pid': node['pid'],
+        'contentid': node['contentid'],
+    }
+
+    return add_indent(retval, indent)
 
 def format_def_elem(node, indent=0):
     if (str(node) == '0x0'):
@@ -1065,6 +1074,11 @@ def format_node(node, indent=0):
         node = cast(node, 'TypeCast')
 
         retval = format_type_cast(node)
+
+    elif is_a(node, 'CdbProcess'):
+        node = cast(node, 'CdbProcess')
+
+        retval = format_cdb_process(node)
 
     elif is_a(node, 'OidList'):
         retval = 'OidList: %s' % format_oid_list(node)
