@@ -1,6 +1,7 @@
 import gdb
 import string
 
+# TODO: Put these fields in a config file
 PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion', 
         'AOCSScan', 'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'TableScan',
         'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
@@ -12,6 +13,7 @@ PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion',
                 'Limit', 'DML', 'SplitUpdate', 'AssertOp', 'RowTrigger',
                 'PartitionSelector' ]
 
+# TODO: Put these fields in a config file
 PathNodes = ['Path', 'AppendOnlyPath', 'AOCSPath', 'ExternalPath', 'PartitionSelectorPath',
              'IndexPath', 'BitmapHeapPath', 'BitmapAndPath', 'BitmapOrPath', 'TidPath',
              'CdbMotionPath', 'ForeignPath', 'AppendPath', 'MergeAppendPath', 'ResultPath',
@@ -247,8 +249,12 @@ def format_optional_node_list(node, fieldname, cast_to=None, skip_tag=False, new
             retval += add_indent('[%s]' % fieldname, indent, True)
             indent_add = 1
 
-        retval += '\n'
-        retval += '%s' % format_node_list(node[fieldname], indent + indent_add, newLine)
+        if newLine == True:
+            retval += '\n'
+            retval += '%s' % format_node_list(node[fieldname], indent + indent_add, newLine)
+        else:
+            retval += ' %s' % format_node_list(node[fieldname], 0, newLine)
+
     return retval
 
 def format_optional_node_field(node, fieldname, cast_to=None, skip_tag=False, indent=1):
@@ -272,36 +278,6 @@ def format_restrict_info(node, indent=0):
     retval += format_optional_node_field(node, 'orclause', skip_tag=True)
 
     return add_indent(retval, indent)
-
-def format_query_info(node, indent=0):
-    retval = 'Query [commandType=%(commandType)s querySource=%(querySource)s queryId=%(queryId)s canSetTag=%(canSetTag)s resultRelation=%(resultRelation)s]' % {
-        'commandType': node['commandType'],
-        'querySource': node['querySource'],
-        'queryId': node['queryId'],
-        'canSetTag': (int(node['canSetTag']) == 1),
-        'resultRelation': node['resultRelation'],
-    }
-    retval += format_optional_node_field(node, 'utilityStmt')
-    retval += format_optional_node_list(node, 'cteList')
-    retval += format_optional_node_list(node, 'rtable')
-    retval += format_optional_node_field(node, 'jointree')
-    retval += format_optional_node_list(node, 'targetList')
-    retval += format_optional_node_list(node, 'withCheckOptions')
-    retval += format_optional_node_list(node, 'returningList')
-    retval += format_optional_node_list(node, 'groupClause')
-    retval += format_optional_node_field(node, 'havingQual')
-    retval += format_optional_node_list(node, 'windowClause')
-    retval += format_optional_node_list(node, 'distinctClause')
-    retval += format_optional_node_list(node, 'sortClause')
-    retval += format_optional_node_list(node, 'scatterClause')
-    retval += format_optional_node_field(node, 'limitOffset')
-    retval += format_optional_node_field(node, 'limitCount')
-    retval += format_optional_node_list(node, 'rowMarks')
-    retval += format_optional_node_field(node, 'setOperations')
-    retval += format_optional_node_list(node, 'constraintDeps')
-    retval += format_optional_node_field(node, 'intoPolicy')
-
-    return add_indent(retval, 0)
 
 def format_appendplan_list(lst, indent):
     retval = format_node_list(lst, indent, True)
@@ -869,11 +845,6 @@ def format_node(node, indent=0):
 
         retval = format_create_stmt(node)
 
-    elif is_a(node, 'IndexStmt'):
-        node = cast(node, 'IndexStmt')
-
-        retval = format_index_stmt(node)
-
     elif is_a(node, 'AlterTableStmt'):
         node = cast(node, 'AlterTableStmt')
 
@@ -1027,20 +998,10 @@ def format_node(node, indent=0):
 
         retval = format_partition_spec(node)
 
-    elif is_a(node, 'Constraint'):
-        node = cast(node, 'Constraint')
-
-        retval = format_constraint(node)
-
     elif is_a(node, 'DefElem'):
         node = cast(node, 'DefElem')
 
         retval = format_def_elem(node)
-
-    elif is_a(node, 'TypeName'):
-        node = cast(node, 'TypeName')
-
-        retval = format_type_name(node)
 
     elif is_a(node, 'Param'):
         node = cast(node, 'Param')
@@ -1072,6 +1033,11 @@ def format_node(node, indent=0):
 
         retval = format_cdb_process(node)
 
+   # elif is_a(node, 'Constraint'):
+   #     node = cast(node, 'Constraint')
+
+   #     retval = format_constraint(node)
+
     elif is_a(node, 'OidList'):
         retval = 'OidList: %s' % format_oid_list(node)
 
@@ -1081,7 +1047,8 @@ def format_node(node, indent=0):
     elif is_a(node, 'Query'):
         node = cast(node, 'Query')
 
-        retval = format_query_info(node)
+        node_formatter = NodeFormatter(node)
+        retval += node_formatter.format()
 
     elif is_pathnode(node):
         node = cast(node, 'Path')
@@ -1093,10 +1060,13 @@ def format_node(node, indent=0):
 
         retval = format_plan_tree(node)
 
+    # TODO: NodeFormatter exceptions in these nodes
+    elif is_a(node, "ColumnRef"):
+        retval = format_type(type_str)
 
     else:
-        # default - just print the type name
-        retval = format_type(type_str)
+        node_formatter = NodeFormatter(node)
+        retval += node_formatter.format()
 
     return add_indent(str(retval), indent)
 
@@ -1190,30 +1160,6 @@ def format_create_stmt(node, indent=0):
 
     return add_indent(retval, indent)
 
-def format_index_stmt(node, indent=0):
-    retval = 'IndexStmt [idxname=%(idxname)s accessMethod=%(accessMethod)s tableSpace=%(tableSpace)s idxcomment=%(idxcomment)s indexOid=%(indexOid)s oldNode=%(oldNode)s unique=%(unique)s primary=%(primary)s isconstraint=%(isconstraint)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s concurrent=%(concurrent)s]' % {
-        'idxname': getchars(node['idxname']),
-        'accessMethod': getchars(node['accessMethod']),
-        'tableSpace': node['tableSpace'],
-        'idxcomment': node['idxcomment'],
-        'indexOid': node['indexOid'],
-        'oldNode': node['oldNode'],
-        'unique': (int(node['unique']) == 1),
-        'primary': (int(node['primary']) == 1),
-        'isconstraint': (int(node['isconstraint']) == 1),
-        'deferrable': (int(node['deferrable']) == 1),
-        'initdeferred': (int(node['initdeferred']) == 1),
-        'concurrent': (int(node['concurrent']) == 1),
-        }
-
-    retval += format_optional_node_field(node, 'relation')
-    retval += format_optional_node_list(node, 'indexParams')
-    retval += format_optional_node_list(node, 'options', newLine=False)
-    retval += format_optional_node_field(node, 'whereClause')
-    retval += format_optional_node_list(node, 'excludeOpNames')
-
-    return add_indent(retval, indent)
-
 def format_alter_table_stmt(node, indent=0):
     retval = 'AlterTableStmt [relkind=%(relkind)s missing_ok=%(missing_ok)s]' % {
         'relkind': node['relkind'],
@@ -1273,6 +1219,36 @@ def format_partition_spec(node, indent=0):
 
     return add_indent(retval, indent)
 
+def format_foreign_key_matchtype(node, field):
+    foreign_key_matchtypes = {
+        'f': 'FKCONSTR_MATCH_FULL',
+        'p': 'FKCONSTR_MATCH_PARTIAL',
+        's': 'FKCONSTR_MATCH_SIMPLE',
+    }
+
+    fk_char = format_char(node[field])
+
+    if (foreign_key_matchtypes.get(fk_char) != None):
+        return "%s=%s"  % (field, foreign_key_matchtypes.get(fk_char))
+
+    return "%s=%s" % (field, fk_char)
+
+def format_foreign_key_actions(node, field):
+    foreign_key_actions = {
+        'a': 'FKONSTR_ACTION_NOACTION',
+        'r': 'FKCONSTR_ACTION_RESTRICT',
+        'c': 'FKCONSTR_ACTION_CASCADE',
+        'n': 'FKONSTR_ACTION_SETNULL',
+        'd': 'FKONSTR_ACTION_SETDEFAULT',
+    }
+
+    fk_char = format_char(node[field])
+
+    if (foreign_key_actions.get(fk_char) != None):
+        return "%s=%s" %(field, foreign_key_actions.get(fk_char))
+
+    return None
+
 def format_constraint(node, indent=0):
     retval = 'Constraint [contype=%(contype)s conname=%(conname)s deferrable=%(deferrable)s initdeferred=%(initdeferred)s location=%(location)s is_no_inherit=%(is_no_inherit)s' % {
         'contype': node['contype'],
@@ -1289,28 +1265,17 @@ def format_constraint(node, indent=0):
         retval += ' indexspace=%s' % node['indexspace']
         retval += ' access_method=%s' % node['access_method']
 
-    foreign_key_matchtypes = {
-        'f': 'FKCONSTR_MATCH_FULL',
-        'p': 'FKCONSTR_MATCH_PARTIAL',
-        's': 'FKCONSTR_MATCH_SIMPLE',
-    }
+    fk_matchtype = format_foreign_key_matchtype(node, 'fk_matchtype')
+    if (fk_matchtype != None):
+        retval += ' %s' % fk_matchtype
 
-    if (foreign_key_matchtypes.get(node['fk_matchtype']) != None):
-        retval += ' fk_matchtype=%s' % foreign_key_matchtypes.get(node['fk_matchtype'])
+    fk_upd_action = format_foreign_key_actions(node, 'fk_upd_action')
+    if (fk_upd_action != None):
+        retval += ' %s' % fk_upd_action
 
-    foreign_key_actions = {
-        'a': 'FKONSTR_ACTION_NOACTION',
-        'r': 'FKCONSTR_ACTION_RESTRICT',
-        'c': 'FKCONSTR_ACTION_CASCADE',
-        'n': 'FKONSTR_ACTION_SETNULL',
-        'd': 'FKONSTR_ACTION_SETDEFAULT',
-    }
-
-    if (foreign_key_actions.get(node['fk_upd_action']) != None):
-        retval += ' fk_upd_action=%s' % foreign_key_actions.get(node['fk_upd_action'])
-
-    if (foreign_key_actions.get(node['fk_upd_action']) != None):
-        retval += ' fk_del_action=%s' % foreign_key_actions.get(node['fk_upd_action'])
+    fk_del_action = format_foreign_key_actions(node, 'fk_del_action')
+    if (fk_del_action != None):
+        retval += ' %s' % fk_del_action
 
     if (node['old_pktable_oid'] != 0):
         retval += ' old_pktable_oid=%s' % node['old_pktable_oid']
@@ -1704,6 +1669,11 @@ def is_node(l):
     except:
         return False
 
+def is_type(value, type_name):
+    t = gdb.lookup_type(type_name)
+    return (str(value.type) == str(t))
+    # This doesn't work for list types for some reason...
+    # return (gdb.types.get_basic_type(value.type) == gdb.types.get_basic_type(t))
 
 def cast(node, type_name):
     '''wrap the gdb cast to proper node type'''
@@ -1740,6 +1710,209 @@ def getchars(arg):
 
     return retval
 
+def get_node_fields(node):
+    nodefields = ["Node *", "Expr *"]
+    type_name = str(node['type']).replace("T_", "")
+
+    t = gdb.lookup_type(type_name)
+    fields = []
+    for v in t.values():
+        for field in nodefields:
+            if is_type(v, field):
+                fields.append(v.name)
+
+    return fields
+
+def get_list_fields(node):
+    listfields = ["List *"]
+    type_name = str(node['type']).replace("T_", "")
+
+    t = gdb.lookup_type(type_name)
+    fields = []
+    for v in t.values():
+        for field in listfields:
+            if is_type(v, field):
+                fields.append(v.name)
+    return fields
+
+# Visibility options
+NOT_NULL = "not_null"
+NEVER_SHOW = "never_show"
+ALWAYS_SHOW = "always_show"
+
+# TODO: generate these overrides in a yaml config file
+REGULAR_FIELD_OVERRIDES = {
+    'Constraint': {
+        'fk_matchtype': {
+            'visibility_override': NOT_NULL,
+            'formatter_override': 'format_foreign_key_matchtype'
+        }
+    }
+}
+
+def format_regular_field(node, field):
+    return "%s=%s" % (field, node[field])
+
+class NodeFormatter(object):
+    # Basic node information
+    __node = None
+    __node_type = None
+    __type_str = None
+
+    # String representations of individual fields in node
+    __all_fields = None
+    __regular_fields = None
+    __node_fields = None
+    __list_fields = None
+
+    # Handle extra fields differently than other types
+    # TODO: - remove extra fields from __regular_feilds
+    #       - set a special method to format these fields in a config file
+    __default_regular_display_method = None
+    __regular_overrides = None
+
+    # String representation of the types to match to generate the above lists
+    __list_types = None
+    __node_types = None
+    def __init__(self, node):
+        # TODO: get node and list types from yaml config OR check each field
+        #       for a node 'signature'
+        # TODO: this should be done in a class method
+        self.__list_types = ["List *"]
+        self.__node_types = ["Node *", "Expr *", "FromExpr *", "OnConflictExpr *", "RangeVar *", "TypeName *"]
+
+        # TODO: Make the node lookup able to handle inherited types(like Plan nodes)
+        self.__type_str = str(node['type'])
+        self.__node = cast(node, self.type)
+
+        # Get methods for display
+        self.__default_regular_display_method = globals()['format_regular_field']
+        self.__regular_overrides = REGULAR_FIELD_OVERRIDES.get(self.type)
+
+    def get_regular_override(self, field):
+        if self.__regular_overrides != None:
+            return self.__regular_overrides.get(field)
+        return None
+
+    #TODO: There should be a hierarchy of overrides, and this should pick the one with the highest priority
+    def get_regular_display_method(self, field):
+        overrides = self.get_regular_override(field)
+        if overrides != None:
+            override_string = overrides.get('formatter_override')
+            if override_string != None:
+                return globals()[override_string]
+
+        return self.__default_regular_display_method
+
+
+    @property
+    def type(self):
+        if self.__node_type == None:
+            self.__node_type = format_type(self.__type_str)
+        return self.__node_type
+
+    @property
+    def fields(self):
+        if self.__all_fields == None:
+            self.__all_fields = []
+            t = gdb.lookup_type(self.type)
+            for field in t.values():
+                # Skip the node['type'] fields
+                if field.name != "type":
+                    self.__all_fields.append(field.name)
+
+        return self.__all_fields
+
+    @property
+    def list_fields(self):
+        if self.__list_fields == None:
+            self.__list_fields = []
+
+            t = gdb.lookup_type(self.type)
+            for v in t.values():
+                for field in self.__list_types:
+                    if self.is_type(v, field):
+                        self.__list_fields.append(v.name)
+
+        return self.__list_fields
+
+    @property
+    def node_fields(self):
+        if self.__node_fields == None:
+            self.__node_fields = []
+
+            t = gdb.lookup_type(self.type)
+            for v in t.values():
+                for field in self.__node_types:
+                    if self.is_type(v, field):
+                        self.__node_fields.append(v.name)
+
+        return self.__node_fields
+
+    @property
+    def regular_fields(self):
+        if self.__regular_fields == None:
+            self.__regular_fields = []
+
+            self.__regular_fields = [field for field in self.fields if field not in self.list_fields + self.node_fields]
+
+        return self.__regular_fields
+
+    # TODO: should this be a class method?
+    def is_type(self, value, type_name):
+        t = gdb.lookup_type(type_name)
+        return (str(value.type) == str(t))
+        # This doesn't work for list types for some reason...
+        # return (gdb.types.get_basic_type(value.type) == gdb.types.get_basic_type(t))
+
+    def format(self):
+        retval = self.format_regular_fields()
+        for field in self.fields:
+            if field in self.node_fields:
+                retval += format_optional_node_field(self.__node, field)
+            elif field in self.list_fields:
+                retval += format_optional_node_list(self.__node, field)
+
+        return retval
+
+    def format_regular_fields(self):
+        # TODO: get this value from config file
+        max_regular_field_chars = 165
+        retval = self.type
+        retval += " ["
+
+        newline_padding_chars = len(retval)
+
+        fieldcount = 1
+        retline = ""
+        for field in self.regular_fields:
+            display_method = self.get_regular_display_method(field)
+            # TODO: there are always going to be special cases- how should I handle them?
+            if self.is_type(self.__node[field], "char *"):
+                value = getchars(self.__node[field])
+
+                retline += "%(field)s=%(value)s" % {
+                    'field': field,
+                    'value': value
+                }
+            else:
+                print("%s %s %s", self.type, field, display_method(self.__node, field))
+                retline += display_method(self.__node, field)
+
+
+            if fieldcount < len(self.regular_fields):
+                # TODO: track current indentation level
+                if len(retline) > max_regular_field_chars:
+                    retval += retline + '\n' + (' ' * newline_padding_chars)
+                    retline = ''
+                else:
+                    retline += ' '
+            else:
+                retval += retline
+            fieldcount +=1
+        retval += ']'
+
+        return retval
 
 class PgPrintCommand(gdb.Command):
     "print PostgreSQL structures"
