@@ -25,6 +25,7 @@ E.g. if `plan` is pointing to `(PlannedStmt *)`, you may do this:
 
 and you'll get something like this:
 
+```
 PlannedStmt [commandType=CMD_SELECT planGen=PLANGEN_PLANNER queryId=0 hasReturning=false hasModifyingCTE=false canSetTag=true transientPlan=false oneoffPlan=false
              simplyUpdatable=false dependsOnRole=false parallelModeNeeded=false numSlices=2 slices=0x56059fb60a08 subplan_sliceIds=0x56059fb61458 rewindPlanIDs=0x0
              nParamExec=0 query_mem=0 metricsQueryType=0 '\000']
@@ -46,3 +47,4 @@ PlannedStmt [commandType=CMD_SELECT planGen=PLANGEN_PLANNER queryId=0 hasReturni
 		RangeTblEntry [rtekind=RTE_RELATION relid=16392 relkind='r' jointype=JOIN_INNER funcordinality=false ctelevelsup=0 self_reference=false forceDistRandom=false
 		               lateral=false inFromCl=true requiredPerms=2 selectedCols=0x00000400]
 	[relationOids] OidList: [16392]
+```
