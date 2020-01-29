@@ -476,6 +476,32 @@ FORMATTER_OVERRIDES = {
             'attcollation': {'visibility': "not_null"},
         },
     },
+    'MotionConn': {
+        'fields': {
+            'sndQueue': {'visibility': "never_show"},
+            'unackQueue': {'visibility': "never_show"},
+            'conn_info': {
+                  'field_type': 'node_field',
+                  'formatter': 'format_pseudo_node_field',
+                },
+            'ackWaitBeginTime': {
+                  'field_type': 'node_field',
+                  'formatter': 'format_pseudo_node_field',
+                },
+            'activeXmitTime': {
+                  'field_type': 'node_field',
+                  'formatter': 'format_pseudo_node_field',
+                },
+            'remoteHostAndPort': {'formatter': "format_string_pointer_field"},
+            'localHostAndPort': {'formatter': "format_string_pointer_field"},
+            # TODO: need a sockaddr_storage dumping function
+            'peer': {
+                  'field_type': 'node_field',
+                  'formatter': 'format_pseudo_node_field',
+                  'visibility': 'never_show',
+                },
+        },
+    },
 }
 
 
@@ -1168,7 +1194,7 @@ def get_tts_nullmap(node, nullmap_field, natts):
         if node[nullmap_field][col] not in [0,1]:
             nullmap.append(None)
         else:
-            nullmap.append((int(node[field][col]) == 1))
+            nullmap.append((int(node[nullmap_field][col]) == 1))
 
         nullmap_byte.append('0x%x' % node[nullmap_field][col])
 
