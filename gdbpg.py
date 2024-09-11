@@ -34,7 +34,6 @@ DEFAULT_DISPLAY_METHODS = {
     'datatype_methods': {
             'char *': 'format_string_pointer_field',
             'const char *': 'format_string_pointer_field',
-            'Bitmapset *': 'format_bitmapset_field',
             'struct timeval': 'format_timeval_field',
             'NameData': 'format_namedata_field',
             'struct nameData': 'format_namedata_field',
