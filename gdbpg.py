@@ -685,14 +685,14 @@ def format_node(node, indent=0):
         retval = format_node_list(node, 0, True)
 
     elif is_a(node, 'String'):
-        node = cast(node, 'Value')
+        node = cast(node, 'String')
 
-        retval = 'String [%s]' % getchars(node['val']['str'])
+        retval = 'String [%s]' % getchars(node['sval'])
 
     elif is_a(node, 'Integer'):
-        node = cast(node, 'Value')
+        node = cast(node, 'Integer')
 
-        retval = 'Integer [%s]' % node['val']['ival']
+        retval = 'Integer [%s]' % node['ival']
 
     elif is_a(node, 'OidList'):
         retval = 'OidList: %s' % format_oid_list(node)
