@@ -748,10 +748,18 @@ def is_joinnode(node):
     return False
 
 def format_a_const(node, indent=0):
-    retval = "A_Const [%(val)s]" % {
-        'val': format_node(node['val'].address),
-        }
-
+    node = cast(node, 'A_Const')
+    val = node['val']
+    retval = "A_Const "
+    n = cast(val['node'].address, 'Node')
+    if is_a(n, 'Integer'):
+        retval += format_node(val['ival'].address)
+    elif is_a(n, 'String'):
+        retval += format_node(val['sval'].address)
+    elif is_a(n, 'Float'):
+        retval += format_node(val['fval'].address)
+    elif is_a(n, 'Boolean'):
+        retval += format_node(val['boolval'].address)
     return add_indent(retval, indent)
 
 def is_a(n, t):
