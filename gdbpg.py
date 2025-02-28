@@ -630,14 +630,23 @@ def format_char(value):
     return str_val.split(' ')[1][1:-1]
 
 
+def get_num_bit(num):
+    retval = ""
+    for i in range(num.bit_length(), -1, -1):
+        if ((num >> i) & 1):
+            retval += str(i) + " "
+    retval = retval.rstrip()
+    return retval
+
 def format_bitmapset(bitmapset):
     if (str(bitmapset) == '0x0'):
         return '0x0'
 
     num_words = int(bitmapset['nwords'])
-    retval = '0x'
+    retval = "Bitmapset ["
     for word in reversed(range(num_words)):
-        retval += '%08x' % int(bitmapset['words'][word])
+        retval += get_num_bit(int(bitmapset['words'][word]))
+    retval += "]"
     return retval
 
 
@@ -678,6 +687,11 @@ def format_node(node, indent=0):
         node = cast(node, 'A_Const')
 
         retval = format_a_const(node)
+
+    if is_a(node, 'Bitmapset'):
+        node = cast(node, 'Bitmapset')
+
+        retval = format_bitmapset(node)
 
     elif is_a(node, 'List'):
         node = cast(node, 'List')
