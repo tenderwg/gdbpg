@@ -8,21 +8,16 @@ NEVER_SHOW = "never_show"
 ALWAYS_SHOW = "always_show"
 
 # TODO: Put these fields in a config file
-PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'Sequence', 'Motion', 
-        'AOCSScan', 'BitmapAnd', 'BitmapOr', 'Scan', 'SeqScan', 'DynamicSeqScan',
-        'TableScan', 'IndexScan', 'DynamicIndexScan', 'BitmapIndexScan',
-        'BitmapHeapScan', 'BitmapAppendOnlyScan', 'BitmapTableScan',
-        'DynamicTableScan', 'TidScan', 'SubqueryScan', 'FunctionScan',
-        'TableFunctionScan', 'ValuesScan', 'ExternalScan', 'AppendOnlyScan',
-        'Join', 'NestLoop', 'MergeJoin', 'HashJoin', 'ShareInputScan',
-        'Material', 'Sort', 'Agg', 'Window', 'Unique', 'Hash', 'SetOp',
-                'Limit', 'DML', 'SplitUpdate', 'AssertOp', 'RowTrigger',
-                'PartitionSelector' ]
+PlanNodes = ['Result', 'Repeat', 'ModifyTable','Append', 'BitmapAnd',
+        'BitmapOr', 'Scan', 'SeqScan', 'TableScan', 'IndexScan', 'BitmapIndexScan',
+        'BitmapHeapScan', 'BitmapTableScan', 'TidScan', 'SubqueryScan',
+        'FunctionScan', 'TableFunctionScan', 'ValuesScan', 'ExternalScan',
+        'Join', 'NestLoop', 'MergeJoin', 'HashJoin', 'Material',
+        'Sort', 'Agg', 'Window', 'Unique', 'Hash', 'SetOp','Limit', 'RowTrigger']
 
 # TODO: Put these fields in a config file
-PathNodes = ['Path', 'AppendOnlyPath', 'AOCSPath', 'ExternalPath', 'PartitionSelectorPath',
-             'IndexPath', 'BitmapHeapPath', 'BitmapAndPath', 'BitmapOrPath', 'TidPath',
-             'CdbMotionPath', 'ForeignPath', 'AppendPath', 'MergeAppendPath', 'ResultPath',
+PathNodes = ['Path', 'ExternalPath','IndexPath', 'BitmapHeapPath', 'BitmapAndPath',
+             'BitmapOrPath', 'TidPath', 'ForeignPath', 'AppendPath', 'MergeAppendPath', 'ResultPath',
              'HashPath', 'MergePath', 'MaterialPath', 'NestPath', 'JoinPath', 'UniquePath'] 
 
 # TODO: Put these defaults config file
@@ -393,25 +388,8 @@ FORMATTER_OVERRIDES = {
                   'field_type': 'tree_field',
                   'visibility': 'not_null',
                 },
-            # GPDB Only:
-            'motionNode': {'formatter': "minimal_format_node_field"},
-            'gpmon_pkt': {'visibility': "never_show"},
         },
     },
-
-    # GPDB Specific Plan nodes
-    'Motion': {
-        'fields': {
-            'hashFuncs': {'visibility': "not_null"},
-            'segidColIdx': {'visibility': "not_null"},
-            'numSortCols': {'visibility': "not_null"},
-            'sortColIdx': {'visibility': "not_null"},
-            'sortOperators': {'visibility': "not_null"},
-            'nullsFirst': {'visibility': "not_null"},
-            'senderSliceInfo': {'visibility': "not_null"},
-        },
-    },
-
     # State Nodes
     'PlanState': {
         'fields': {
@@ -431,8 +409,6 @@ FORMATTER_OVERRIDES = {
                   'field_type': 'node_field',
                   'formatter': 'format_pseudo_node_field',
                 },
-            # GPDB only:
-            'gpmon_pkt': {'visibility': 'never_show'},
         },
     },
     'AggState': {
@@ -443,19 +419,6 @@ FORMATTER_OVERRIDES = {
                 },
         },
     },
-
-    # GPDB Specific Partition related nodes
-    'PartitionBy': {
-        'fields': {
-            'location': {'visibility': "never_show"},
-        },
-    },
-    'PartitionRangeItem': {
-        'fields': {
-            'location': {'visibility': "never_show"},
-        },
-    },
-
     # Pseudo nodes
     'tupleDesc': {
         'fields': {
@@ -473,32 +436,6 @@ FORMATTER_OVERRIDES = {
             'attalign': {'formatter': "format_char_field"},
             'attinhcount': {'visibility': "not_null"},
             'attcollation': {'visibility': "not_null"},
-        },
-    },
-    'MotionConn': {
-        'fields': {
-            'sndQueue': {'visibility': "never_show"},
-            'unackQueue': {'visibility': "never_show"},
-            'conn_info': {
-                  'field_type': 'node_field',
-                  'formatter': 'format_pseudo_node_field',
-                },
-            'ackWaitBeginTime': {
-                  'field_type': 'node_field',
-                  'formatter': 'format_pseudo_node_field',
-                },
-            'activeXmitTime': {
-                  'field_type': 'node_field',
-                  'formatter': 'format_pseudo_node_field',
-                },
-            'remoteHostAndPort': {'formatter': "format_string_pointer_field"},
-            'localHostAndPort': {'formatter': "format_string_pointer_field"},
-            # TODO: need a sockaddr_storage dumping function
-            'peer': {
-                  'field_type': 'node_field',
-                  'formatter': 'format_pseudo_node_field',
-                  'visibility': 'never_show',
-                },
         },
     },
 }
@@ -685,27 +622,22 @@ def format_node(node, indent=0):
 
     if is_a(node, 'A_Const'):
         node = cast(node, 'A_Const')
-
         retval = format_a_const(node)
 
     if is_a(node, 'Bitmapset'):
         node = cast(node, 'Bitmapset')
-
         retval = format_bitmapset(node)
 
     elif is_a(node, 'List'):
         node = cast(node, 'List')
-
         retval = format_node_list(node, 0, True)
 
     elif is_a(node, 'String'):
         node = cast(node, 'String')
-
         retval = 'String [%s]' % getchars(node['sval'])
 
     elif is_a(node, 'Integer'):
         node = cast(node, 'Integer')
-
         retval = 'Integer [%s]' % node['ival']
 
     elif is_a(node, 'OidList'):
@@ -1527,6 +1459,7 @@ class NodeFormatter(object):
                 skip = False
 
                 field = t.values()[index]
+
                 # TODO: should the ability to ignore fields entirely exist at all?
                 #       This seems to conflict with the visibility settings
                 # Fields that are to be ignored
