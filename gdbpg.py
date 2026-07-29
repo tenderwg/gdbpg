@@ -568,23 +568,29 @@ def format_char(value):
 
 
 def get_num_bit(num):
-    retval = ""
-    for i in range(num.bit_length(), -1, -1):
-        if ((num >> i) & 1):
-            retval += str(i) + " "
-    retval = retval.rstrip()
+    retval = []
+    for i in range(num.bit_length()):
+        if (num >> i) & 1:
+            retval.append(str(i))
     return retval
 
 def format_bitmapset(bitmapset):
-    if (str(bitmapset) == '0x0'):
+    if str(bitmapset) == '0x0':
         return '0x0'
 
+    BITS_PER_WORD = 64
+    members = []
+
     num_words = int(bitmapset['nwords'])
-    retval = "Bitmapset ["
-    for word in reversed(range(num_words)):
-        retval += get_num_bit(int(bitmapset['words'][word]))
-    retval += "]"
-    return retval
+
+    for word in range(num_words):
+        w = int(bitmapset['words'][word])
+
+        for bit in range(BITS_PER_WORD):
+            if w & (1 << bit):
+                members.append(str(word * BITS_PER_WORD + bit))
+
+    return "Bitmapset [" + " ".join(members) + "]"
 
 
 def format_node_array(array, start_idx, length, indent=0):
