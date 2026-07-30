@@ -1716,8 +1716,8 @@ class PgPrintCommand(gdb.Command):
     "print PostgreSQL structures"
 
     def __init__(self):
-        super(PgPrintCommand, self).__init__("pgprint", gdb.COMMAND_SUPPORT,
-                                             gdb.COMPLETE_NONE, False)
+        super(PgPrintCommand, self).__init__("pgprint", gdb.COMMAND_DATA,
+                                             gdb.COMPLETE_EXPRESSION, False)
 
     def invoke(self, arg, from_tty):
         global recursion_depth
