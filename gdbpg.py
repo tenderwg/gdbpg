@@ -137,6 +137,10 @@ FORMATTER_OVERRIDES = {
     },
     'EquivalenceClass': {
         'fields': {
+                'ec_childmembers': {
+                'field_type': 'node_field',
+                'formatter': 'format_ec_childmembers',
+            },
             # TODO: These fields are nice to dump recursively, but
             # they potentially have backwards references to their parents.
             # Need a way to detect this condition and stop dumping
@@ -945,6 +949,39 @@ def format_optional_node_list(node, fieldname, cast_to=None, skip_tag=False, new
 
     return retval
 
+def format_ec_childmembers(node, fieldname, cast_to=None, skip_tag=False,
+                           newLine=True, print_null=False, indent=1):
+    if cast_to != None:
+        node = cast(node, cast_to)
+
+    childmembers = node[fieldname]
+
+    if str(childmembers) == '0x0':
+        if print_null:
+            return add_indent("[%s] (NULL)" % fieldname, indent, True)
+        return ''
+
+    retval = ''
+    indent_add = 0
+
+    if skip_tag == False:
+        retval += add_indent('[%s]' % fieldname, indent, True)
+        indent_add = 1
+
+    for i in range(0, int(node['ec_childmembers_size'])):
+        lst = childmembers[i]
+
+        if str(lst) == '0x0':
+            retval += add_indent('[%d] (NIL)' % i,
+                                 indent + indent_add, True)
+            continue
+
+        retval += add_indent('[%d]' % i, indent + indent_add, True)
+        retval += '\n'
+        retval += format_node_list(lst, indent + indent_add + 1, True)
+
+    return retval
+
 def format_optional_oid_list(node, fieldname, skip_tag=False, newLine=False, print_null=False, indent=1):
     retval = ''
     if str(node[fieldname]) != '0x0':
@@ -1492,6 +1529,17 @@ class NodeFormatter(object):
 
         return self._all_fields
 
+    def is_pointer_to_type(self, value, type_name):
+        value_type = value.type.strip_typedefs()
+
+        if value_type.code != gdb.TYPE_CODE_PTR:
+            return False
+
+        target_type = value_type.target().strip_typedefs()
+        expected_type = gdb.lookup_type(type_name).strip_typedefs()
+
+        return target_type == expected_type
+
     @property
     def list_fields(self):
         if self._list_fields == None:
@@ -1507,8 +1555,8 @@ class NodeFormatter(object):
                         continue
 
                 v = self._node[f]
-                for field in self._list_types:
-                    if self.is_type(v, field):
+                for type_name in self._list_types:
+                    if self.is_pointer_to_type(v, type_name):
                         self._list_fields.append(f)
 
         return self._list_fields
