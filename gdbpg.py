@@ -141,11 +141,6 @@ FORMATTER_OVERRIDES = {
                 'field_type': 'node_field',
                 'formatter': 'format_ec_childmembers',
             },
-            # TODO: These fields are nice to dump recursively, but
-            # they potentially have backwards references to their parents.
-            # Need a way to detect this condition and stop dumping
-            'ec_sources': {'formatter': 'minimal_format_node_field', },
-            'ec_derives': {'formatter': 'minimal_format_node_field', },
         },
     },
     'EState': {
@@ -453,6 +448,7 @@ JoinNodes = ['NestLoop', 'MergeJoin', 'HashJoin', 'Join', 'NestLoopState',
              'MergeJoinState', 'HashJoinState', 'JoinState']
 
 recursion_depth = 0
+active_node_addresses = set()
 
 def format_type(t, indent=0):
     'strip the leading T_ from the node type tag'
@@ -605,6 +601,21 @@ def format_node_array(array, start_idx, length, indent=0):
 
     return add_indent(("\n".join(items)), indent)
 
+def get_node_address(node):
+    """Return the address of a node for recursion-cycle detection."""
+    try:
+        node_type = node.type.strip_typedefs()
+
+        if node_type.code == gdb.TYPE_CODE_PTR:
+            return int(node)
+
+        if node.address is not None:
+            return int(node.address)
+    except (gdb.error, TypeError, ValueError):
+        pass
+
+    return None
+
 def max_depth_exceeded():
     global recursion_depth
     if recursion_depth >= DEFAULT_DISPLAY_METHODS['max_recursion_depth']:
@@ -614,66 +625,84 @@ def max_depth_exceeded():
 def format_node(node, indent=0):
     'format a single Node instance (only selected Node types supported)'
 
-    # Check the recursion depth
-    global recursion_depth
-    if max_depth_exceeded():
-        if is_node(node):
-            node = cast(node, 'Node')
-            return "%s %s <max_depth_exceeded>" % (format_type(node['type']), str(node))
-        else:
-            return "%s <max_depth_exceeded>" % str(node)
-
-    recursion_depth += 1
+    global recursion_depth, active_node_addresses
 
     if str(node) == '0x0':
         return add_indent('(NULL)', indent)
 
-    retval = ''
+    node_address = get_node_address(node)
 
-    if is_a(node, 'A_Const'):
-        node = cast(node, 'A_Const')
-        retval = format_a_const(node)
+    # PostgreSQL planner structures form a graph, not necessarily a tree.
+    # For example, an EquivalenceClass can reference a RestrictInfo through
+    # ec_sources, while that RestrictInfo points back to the same
+    # EquivalenceClass through left_ec/right_ec.  Stop only if a node is
+    # already present on the current recursion path.  Do not keep a global
+    # "visited" set, since the same node can legitimately be referenced from
+    # multiple independent branches.
+    if node_address is not None and node_address in active_node_addresses:
+        if is_node(node):
+            n = cast(node, 'Node')
+            return add_indent("%s %s <recursive_reference>" %
+                              (format_type(n['type']), str(node)), indent)
+        else:
+            return add_indent("%s <recursive_reference>" % str(node), indent)
 
-    if is_a(node, 'Bitmapset'):
-        node = cast(node, 'Bitmapset')
-        retval = format_bitmapset(node)
+    # Keep the existing maximum recursion depth as a safety net for deeply
+    # nested but acyclic structures.
+    if max_depth_exceeded():
+        if is_node(node):
+            n = cast(node, 'Node')
+            return add_indent("%s %s <max_depth_exceeded>" %
+                              (format_type(n['type']), str(node)), indent)
+        else:
+            return add_indent("%s <max_depth_exceeded>" % str(node), indent)
 
-    elif is_a(node, 'List'):
-        node = cast(node, 'List')
-        retval = format_node_list(node, 0, True)
+    if node_address is not None:
+        active_node_addresses.add(node_address)
+    recursion_depth += 1
 
-    elif is_a(node, 'String'):
-        node = cast(node, 'String')
-        retval = 'String [%s]' % getchars(node['sval'])
+    try:
+        retval = ''
+        if is_a(node, 'A_Const'):
+            node = cast(node, 'A_Const')
+            retval = format_a_const(node)
 
-    elif is_a(node, 'Integer'):
-        node = cast(node, 'Integer')
-        retval = 'Integer [%s]' % node['ival']
+        if is_a(node, 'Bitmapset'):
+            node = cast(node, 'Bitmapset')
+            retval = format_bitmapset(node)
 
-    elif is_a(node, 'OidList'):
-        retval = 'OidList: %s' % format_oid_list(node)
+        elif is_a(node, 'List'):
+            node = cast(node, 'List')
+            retval = format_node_list(node, 0, True)
 
-    elif is_a(node, 'IntList'):
-        retval = 'IntList: %s' % format_oid_list(node)
+        elif is_a(node, 'String'):
+            node = cast(node, 'String')
+            retval = 'String [%s]' % getchars(node['sval'])
+        elif is_a(node, 'Integer'):
+            node = cast(node, 'Integer')
+            retval = 'Integer [%s]' % node['ival']
+        elif is_a(node, 'OidList'):
+            retval = 'OidList: %s' % format_oid_list(node)
+        elif is_a(node, 'IntList'):
+            retval = 'IntList: %s' % format_oid_list(node)
+        elif is_pathnode(node):
+            node_formatter = PlanStateFormatter(node)
+            retval += node_formatter.format()
+        elif is_plannode(node):
+            node_formatter = PlanStateFormatter(node)
+            retval += node_formatter.format()
+        elif is_statenode(node):
+            node_formatter = PlanStateFormatter(node)
+            retval += node_formatter.format()
+        else:
+            node_formatter = NodeFormatter(node)
+            retval += node_formatter.format()
+        return add_indent(str(retval), indent)
+    finally:
+        recursion_depth -= 1
+        if node_address is not None:
+            active_node_addresses.discard(node_address)
 
-    elif is_pathnode(node):
-        node_formatter = PlanStateFormatter(node)
-        retval += node_formatter.format()
-
-    elif is_plannode(node):
-        node_formatter = PlanStateFormatter(node)
-        retval += node_formatter.format()
-
-    elif is_statenode(node):
-        node_formatter = PlanStateFormatter(node)
-        retval += node_formatter.format()
-
-    else:
-        node_formatter = NodeFormatter(node)
-        retval += node_formatter.format()
-
-    recursion_depth -= 1
-    return add_indent(str(retval), indent)
 
 def is_pathnode(node):
     for nodestring in PathNodes:
@@ -1768,14 +1797,14 @@ class PgPrintCommand(gdb.Command):
                                              gdb.COMPLETE_EXPRESSION, False)
 
     def invoke(self, arg, from_tty):
-        global recursion_depth
+        global recursion_depth, active_node_addresses
 
         arg_list = gdb.string_to_argv(arg)
         if len(arg_list) != 1:
             print("usage: pgprint var")
             return
         recursion_depth = 0
-
+        active_node_addresses.clear()
         l = gdb.parse_and_eval(arg_list[0])
 
         if not is_node(l):
