@@ -763,15 +763,64 @@ def is_xpr(l):
     except:
         return False
 
-def is_node(l):
-    '''return True if the value looks like a Node (has 'type' field)'''
-    if is_xpr(l):
-        return True
+def type_has_node_header(value_or_type, seen=None, allow_indirection=True):
+    """Return True when a type starts with an embedded PostgreSQL Node.
 
+    PostgreSQL implements inheritance by embedding the parent structure as
+    the first member.  Consequently, many node types don't have a top-level
+    ``type`` field.  For example, AppendPath starts with Path, and HashPath
+    starts with JoinPath, which in turn starts with Path.  In all of those
+    cases the NodeTag is still at offset zero.
+
+    Inspect types rather than values here.  Besides avoiding inferior-memory
+    reads, this prevents the first two enum fields of a Path (type and
+    pathtype) from being mistaken for a pointer by the pseudo-node fallback.
+    """
+    if isinstance(value_or_type, gdb.Type):
+        datatype = value_or_type
+    else:
+        datatype = value_or_type.type
+
+    datatype = datatype.strip_typedefs()
+    if not allow_indirection and datatype.code in [gdb.TYPE_CODE_PTR,
+                                                    gdb.TYPE_CODE_ARRAY]:
+        return False
+    while datatype.code in [gdb.TYPE_CODE_PTR, gdb.TYPE_CODE_ARRAY]:
+        datatype = datatype.target().strip_typedefs()
+
+    if datatype.code not in [gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION]:
+        return False
+
+    if seen is None:
+        seen = set()
+
+    type_id = str(datatype)
+    if type_id in seen:
+        return False
+    seen.add(type_id)
+
+    fields = datatype.values()
+    if len(fields) == 0:
+        return False
+
+    first_field = fields[0]
+    if first_field.name == 'type':
+        try:
+            node_tag_type = gdb.lookup_type('NodeTag').strip_typedefs()
+            return first_field.type.strip_typedefs() == node_tag_type
+        except gdb.error:
+            return False
+
+    # PostgreSQL node inheritance always embeds the parent as the first
+    # member, so only that member can carry a NodeTag at offset zero.
+    return type_has_node_header(first_field.type, seen,
+                                allow_indirection=False)
+
+def is_node(l):
+    '''Return True if the value starts with a PostgreSQL Node header.'''
     try:
-        x = l['type']
-        return True
-    except:
+        return type_has_node_header(l)
+    except (gdb.error, TypeError):
         return False
 
 def is_type(value, type_name, is_pointer):
@@ -1799,13 +1848,15 @@ class PgPrintCommand(gdb.Command):
     def invoke(self, arg, from_tty):
         global recursion_depth, active_node_addresses
 
-        arg_list = gdb.string_to_argv(arg)
-        if len(arg_list) != 1:
+        if not arg.strip():
             print("usage: pgprint var")
             return
         recursion_depth = 0
         active_node_addresses.clear()
-        l = gdb.parse_and_eval(arg_list[0])
+        # pgprint takes one GDB expression, not one whitespace-delimited word.
+        # This permits useful casts such as
+        #     pgprint (AppendPath *) best_path
+        l = gdb.parse_and_eval(arg)
 
         if not is_node(l):
             print("not a node type")
