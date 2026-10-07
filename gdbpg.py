@@ -667,7 +667,7 @@ def format_node(node, indent=0):
             node = cast(node, 'A_Const')
             retval = format_a_const(node)
 
-        if is_a(node, 'Bitmapset'):
+        elif is_a(node, 'Bitmapset'):
             node = cast(node, 'Bitmapset')
             retval = format_bitmapset(node)
 
@@ -734,6 +734,8 @@ def is_joinnode(node):
 
 def format_a_const(node, indent=0):
     node = cast(node, 'A_Const')
+    if bool(node['isnull']):
+        return add_indent("A_Const NULL", indent)
     val = node['val']
     retval = "A_Const "
     n = cast(val['node'].address, 'Node')
