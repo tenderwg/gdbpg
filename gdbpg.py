@@ -499,6 +499,8 @@ def format_oid_list(lst, indent=0):
     if (str(lst) == '0x0'):
         return '(NIL)'
 
+    lst = cast(lst, 'List')
+    value_field = 'int_value' if is_a(lst, 'IntList') else 'oid_value'
     # we'll collect the formatted items into a Python list
     tlist = []
     if is_old_style_list(lst):
@@ -508,14 +510,14 @@ def format_oid_list(lst, indent=0):
         while str(item) != '0x0':
 
             # get item from the list and just grab 'oid_value as int'
-            tlist.append(int(item['data']['oid_value']))
+            tlist.append(int(item['data'][value_field]))
 
             # next item
             item = item['next']
     else:
         for col in range(0, lst['length']):
             element = lst['elements'][col]
-            tlist.append(int(element['oid_value']))
+            tlist.append(int(element[value_field]))
 
     return add_indent(str(tlist), indent)
 
